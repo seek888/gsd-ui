@@ -67,8 +67,13 @@ export function DocumentsView() {
               onToggle={() => setViewMode(viewMode === 'preview' ? 'edit' : 'preview')}
             />
             {viewMode === 'edit' && (
-              <Button size="sm" onClick={() => saveFile()}>
-                Save
+              <Button
+                size="sm"
+                onClick={() => saveFile()}
+                disabled={!openFile || !openFile.isDirty}
+                title={openFile?.isDirty ? 'Save changes (Cmd+S)' : 'No changes to save'}
+              >
+                {openFile?.isDirty ? 'Save' : 'Saved'}
               </Button>
             )}
           </div>
