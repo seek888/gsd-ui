@@ -68,7 +68,7 @@ Plans:
 Plans:
 - [ ] 03-01: Build file tree component with react-arborist showing `.planning/` structure with expand/collapse
 - [x] 03-02: Implement Markdown file preview rendering with heading hierarchy, tables, code blocks, and front matter display
-- [ ] 03-03: Integrate Monaco Editor with read/edit toggle for Markdown files; implement save via Tauri fs plugin
+- [x] 03-03: Integrate Monaco Editor with read/edit toggle for Markdown files; implement save via Tauri fs plugin
 - [ ] 03-04: Add unsaved changes indicator (dirty state) and save button state management
 - [ ] 03-05: Implement file watcher on `.planning/` directory with 500ms debounce to auto-refresh tree and open views
 **UI hint**: yes
@@ -121,7 +121,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Scaffold + Foundation | 3/3 | Complete | 2026-04-13 |
 | 2. Command Execution + Output Streaming | 6/6 | Complete | 2026-04-13 |
-| 3. File Browsing + Monaco Editor | 0/5 | Planning complete | - |
+| 3. File Browsing + Monaco Editor | 2/5 | In Progress|  |
 | 4. Progress & State Views | 0/4 | Not started | - |
 | 5. Polish + Distribution | 0/5 | Not started | - |
 
