@@ -60,17 +60,22 @@ export const useCLIStore = create<CLIState>((set, get) => ({
         (data) => get().appendOutput(data, 'stderr')
       ).then((commandWithEvents) => {
         const { child, onClose } = commandWithEvents;
+        const pid = child.pid;
+
         set({
-          runningProcess: { pid: child.pid, name, child, command: commandWithEvents },
+          runningProcess: { pid, name, child, command: commandWithEvents },
           isRunning: true,
         });
-        resolve(child.pid);
 
-        // Listen for process completion
+        // Only resolve when process closes (WR-02)
         onClose(() => {
           set({ runningProcess: null, isRunning: false });
+          resolve(pid);
         });
-      }).catch(reject);
+      }).catch((err) => {
+        set({ isRunning: false, error: String(err) });
+        reject(err);
+      });
     });
   },
 
