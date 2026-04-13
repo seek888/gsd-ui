@@ -39,7 +39,17 @@ export const useCLIStore = create<CLIState>((set, get) => ({
   clearError: () => set({ error: null }),
 
   executeCommand: async (name, args) => {
-    const { clearOutput } = get();
+    const { clearOutput, runningProcess } = get();
+
+    // Kill existing process before starting new one (CR-04)
+    if (runningProcess) {
+      try {
+        await runningProcess.child.kill();
+      } catch (err) {
+        console.error('Failed to kill existing process:', err);
+      }
+    }
+
     clearOutput();
 
     return new Promise((resolve, reject) => {
