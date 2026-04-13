@@ -52,7 +52,15 @@ export async function runCommand(
   validateArgs(args);
 
   const cmd = Command.create(program, args);
-  cmd.stdout.on('data', onStdout);
-  cmd.stderr.on('data', onStderr);
+
+  // Wrap event registration in try-catch to handle failures
+  try {
+    cmd.stdout.on('data', onStdout);
+    cmd.stderr.on('data', onStderr);
+  } catch (err) {
+    onStderr(`Failed to attach to command output: ${err}`);
+    throw err;
+  }
+
   return await cmd.spawn();
 }
