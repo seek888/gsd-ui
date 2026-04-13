@@ -24,16 +24,12 @@ A Tauri v2 + React desktop app that wraps the GSD CLI workflow. Users can trigge
   3. If CLI is missing, user sees a clear install guide page instead of a broken app
   4. User can select a project directory via a native directory picker dialog
   5. Selected project path persists across app restarts
-**Plans**: 7 plans
+**Plans**: 3 plans (consolidated from original 7)
 
 Plans:
-- [ ] 01-01: Initialize Tauri v2 + React + TypeScript project via `npm create tauri-app`
-- [ ] 01-02: Install and initialize all Tauri v2 plugins (shell, fs with watch, store) and configure capability files
-- [ ] 01-03: Configure CSP in tauri.conf.json for Monaco Editor (add required directives)
-- [ ] 01-04: Implement CLI detection command (run `claude --version` via shell plugin, handle not-found)
-- [ ] 01-05: Create CLI install guide page (shown when CLI is not detected)
-- [ ] 01-06: Create native directory picker and wire project path selection
-- [ ] 01-07: Set up Zustand stores (project state, CLI state, UI state) and persist settings via @tauri-apps/plugin-store
+- [ ] 01-01: Scaffold Tauri v2 + React + TypeScript project, install all plugins, configure capabilities + CSP
+- [ ] 01-02: Create Zustand stores (project, UI, CLI), lib helpers, and shadcn/ui base components
+- [ ] 01-03: Build App Shell (sidebar, WelcomePage, DirectoryPicker, 4 view shells) and wire persistence
 **UI hint**: yes
 
 ### Phase 2: Command Execution + Output Streaming
@@ -123,7 +119,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold + Foundation | 0/7 | Not started | - |
+| 1. Scaffold + Foundation | 0/3 | Not started | - |
 | 2. Command Execution + Output Streaming | 0/6 | Not started | - |
 | 3. File Browsing + Monaco Editor | 0/5 | Not started | - |
 | 4. Progress & State Views | 0/4 | Not started | - |
