@@ -21,7 +21,11 @@ export function TerminalView() {
     // ClipboardAddon handles native copy, but we also support manual copy
     const selection = terminalRef?.getSelection();
     if (selection) {
-      navigator.clipboard.writeText(selection);
+      navigator.clipboard.writeText(selection)
+        .catch((err) => {
+          console.error('Failed to copy to clipboard:', err);
+          // Could show a toast notification here (WR-03)
+        });
     }
   }, [terminalRef]);
 
