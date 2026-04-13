@@ -24,6 +24,8 @@ interface FileState {
   viewMode: ViewMode;
   // Tracks when the current file was modified externally (by someone other than the user in this app)
   externalModification: { path: string; timestamp: number } | null;
+  // Tracks paths of all files with unsaved changes (for file tree indicators)
+  fileDirtyPaths: Set<string>;
   setFileTree: (tree: FileNode[]) => void;
   openFileByPath: (path: string) => Promise<void>;
   setViewMode: (mode: ViewMode) => void;
@@ -33,6 +35,8 @@ interface FileState {
   clearExternalModification: () => void;
   reloadCurrentFile: () => Promise<void>;
   refreshFileTree: () => Promise<void>;
+  isFileDirty: (path: string) => boolean;
+  clearDirtyFlag: (path: string) => void;
 }
 
 export const useFileStore = create<FileState>((set, get) => ({
@@ -40,6 +44,7 @@ export const useFileStore = create<FileState>((set, get) => ({
   openFile: null,
   viewMode: 'preview',
   externalModification: null,
+  fileDirtyPaths: new Set<string>(),
 
   setFileTree: (tree) => set({ fileTree: tree }),
 
@@ -54,13 +59,27 @@ export const useFileStore = create<FileState>((set, get) => ({
     const { openFile } = get();
     if (!openFile) return;
     await writeTextFile(openFile.path, openFile.content);
-    set({ openFile: { ...openFile, isDirty: false } });
+    const newDirtyPaths = new Set(get().fileDirtyPaths);
+    newDirtyPaths.delete(openFile.path);
+    set({ openFile: { ...openFile, isDirty: false }, fileDirtyPaths: newDirtyPaths });
   },
 
   updateContent: (content) => {
     const { openFile } = get();
     if (!openFile) return;
-    set({ openFile: { ...openFile, content, isDirty: true } });
+    const newDirtyPaths = new Set(get().fileDirtyPaths);
+    newDirtyPaths.add(openFile.path);
+    set({ openFile: { ...openFile, content, isDirty: true }, fileDirtyPaths: newDirtyPaths });
+  },
+
+  isFileDirty: (path) => get().fileDirtyPaths.has(path),
+
+  clearDirtyFlag: (path) => {
+    set((state) => {
+      const newSet = new Set(state.fileDirtyPaths);
+      newSet.delete(path);
+      return { fileDirtyPaths: newSet };
+    });
   },
 
   setExternalModification: (path) => {
@@ -75,7 +94,9 @@ export const useFileStore = create<FileState>((set, get) => ({
     const { openFile } = get();
     if (!openFile) return;
     const content = await readTextFile(openFile.path);
-    set({ openFile: { ...openFile, content, isDirty: false }, externalModification: null });
+    const newDirtyPaths = new Set(get().fileDirtyPaths);
+    newDirtyPaths.delete(openFile.path);
+    set({ openFile: { ...openFile, content, isDirty: false }, fileDirtyPaths: newDirtyPaths, externalModification: null });
   },
 
   refreshFileTree: async () => {
