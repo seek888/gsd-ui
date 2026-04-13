@@ -68,8 +68,13 @@ export const useCLIStore = create<CLIState>((set, get) => ({
         });
 
         // Only resolve when process closes (WR-02)
+        // Track currentPid to prevent stale callbacks from affecting new commands (CR-01)
         onClose(() => {
-          set({ runningProcess: null, isRunning: false });
+          // Only process if this is still the current process
+          const state = get();
+          if (state.runningProcess?.pid === pid) {
+            set({ runningProcess: null, isRunning: false });
+          }
           resolve(pid);
         });
       }).catch((err) => {
