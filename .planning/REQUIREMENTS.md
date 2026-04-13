@@ -39,7 +39,7 @@
 - [ ] **FILE-01**: 左侧文件树展示 `.planning/` 目录结构，支持折叠/展开，点击文件在主区域打开
 - [ ] **FILE-02**: Markdown 文件默认以渲染模式显示（标题层级、表格、代码块语法高亮、front matter 可见）
 - [x] **FILE-03**: 用户可切换到 Monaco 编辑器模式对 `.planning/` 内的 Markdown 文件进行编辑，保存后写回磁盘
-- [ ] **FILE-04**: 编辑模式下有未保存变更指示（标题栏圆点或保存按钮状态）
+- [x] **FILE-04**: 编辑模式下有未保存变更指示（标题栏圆点或保存按钮状态）
 - [x] **FILE-05**: 应用监听 `.planning/` 目录变更（文件增删改），自动刷新进度视图和文件树（防抖 500ms）
 
 ## v2 Requirements
@@ -110,7 +110,7 @@
 | FILE-01 | Phase 3 | Pending |
 | FILE-02 | Phase 3 | Pending |
 | FILE-03 | Phase 3 | Complete |
-| FILE-04 | Phase 3 | Pending |
+| FILE-04 | Phase 3 | Complete |
 | FILE-05 | Phase 3 | Complete |
 
 **Coverage:**
