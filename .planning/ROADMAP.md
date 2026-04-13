@@ -7,7 +7,7 @@ A Tauri v2 + React desktop app that wraps the GSD CLI workflow. Users can trigge
 ## Phases
 
 - [x] **Phase 1: Scaffold + Foundation** - Tauri v2 project setup, CLI detection, path selection, Zustand stores, capability configuration
-- [ ] **Phase 2: Command Execution + Output Streaming** - GSD command buttons, real-time stdout/stderr streaming, ANSI colors, cancel support
+- [x] **Phase 2: Command Execution + Output Streaming** - GSD command buttons, real-time stdout/stderr streaming, ANSI colors, cancel support
 - [ ] **Phase 3: File Browsing + Monaco Editor** - File tree, Markdown preview, Monaco editing, unsaved indicator, file watching
 - [ ] **Phase 4: Progress & State Views** - Phase list with completion, expandable plans, session context, attention panel
 - [ ] **Phase 5: Polish + Distribution** - Error handling, settings persistence, cross-platform builds, app icon
@@ -45,12 +45,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 02-01: Build GSD command panel with button list (CMD-01, CMD-02)
-- [ ] 02-02: Implement shell plugin command execution with cancel/kill support (CMD-03, CMD-04)
-- [ ] 02-03: Implement real-time output streaming with Rust-side batching (100ms windows) and React-side requestAnimationFrame throttling (OUT-01)
-- [ ] 02-04: Implement ANSI color code parsing and terminal output rendering (OUT-02)
-- [ ] 02-05: Implement auto-scroll with user-scroll detection and "jump to bottom" button (OUT-03)
-- [ ] 02-06: Implement output copy-to-clipboard and clear panel functionality (OUT-04)
+- [x] 02-01: Build GSD command panel with button list (CMD-01, CMD-02)
+- [x] 02-02: Implement shell plugin command execution with cancel/kill support (CMD-03, CMD-04)
+- [x] 02-03: Implement real-time output streaming with Rust-side batching (100ms windows) and React-side requestAnimationFrame throttling (OUT-01)
+- [x] 02-04: Implement ANSI color code parsing and terminal output rendering (OUT-02)
+- [x] 02-05: Implement auto-scroll with user-scroll detection and "jump to bottom" button (OUT-03)
+- [x] 02-06: Implement output copy-to-clipboard and clear panel functionality (OUT-04)
 **UI hint**: yes
 
 ### Phase 3: File Browsing + Monaco Editor
