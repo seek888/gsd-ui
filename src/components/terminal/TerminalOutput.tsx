@@ -1,89 +1,99 @@
-import { useEffect, useRef } from 'react';
-import { Terminal } from '@xterm/xterm';
-import { FitAddon } from '@xterm/addon-fit';
-import { XTERM_DARK_THEME } from '@/lib/xtermTheme';
+import { useEffect, useRef, useState, useCallback } from "react";
+import { Terminal } from "@xterm/xterm";
+import { FitAddon } from "@xterm/addon-fit";
+import { ClipboardAddon } from "@xterm/addon-clipboard";
+import "@xterm/xterm/css/xterm.css";
+import { XTERM_DARK_THEME } from "@/lib/xtermTheme";
+import { JumpToBottom } from "./JumpToBottom";
 
-interface TerminalOutputProps {
+export interface TerminalOutputProps {
   className?: string;
+  onSelectionChange?: (hasSelection: boolean) => void;
+  onTerminalReady?: (terminal: Terminal) => void;
 }
 
-/**
- * TerminalOutput component using xterm.js with ANSI color support.
- *
- * This component provides a terminal emulator that:
- * - Renders ANSI escape sequences (colors, bold, underline, etc.)
- * - Uses a dark theme matching shadcn/ui
- * - Auto-resizes to fit its container
- * - Provides methods for writing output (write, writeln, clear)
- *
- * @example
- * ```tsx
- * const terminalRef = useRef<Terminal | null>(null);
- * <TerminalOutput ref={terminalRef} className="h-full" />
- *
- * // Write to terminal
- * terminalRef.current?.write('\x1b[31mRed text\x1b[0m\n');
- * ```
- */
-export const TerminalOutput = ({ className = '' }: TerminalOutputProps) => {
-  const terminalRef = useRef<Terminal | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+export function TerminalOutput({ className = "", onSelectionChange, onTerminalReady }: TerminalOutputProps) {
+  const terminalRef = useRef<HTMLDivElement>(null);
+  const terminalInstanceRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
+  const [userScrolled, setUserScrolled] = useState(false);
+
+  // Use stable callbacks to avoid re-subscribing to events
+  const handleSelectionChangeCallback = useCallback(() => {
+    const selection = terminalInstanceRef.current?.getSelection();
+    const hasSelection = selection ? selection.length > 0 : false;
+    onSelectionChange?.(hasSelection);
+  }, [onSelectionChange]);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!terminalRef.current) return;
 
-    // Create xterm.js Terminal instance with dark theme
+    // Initialize xterm.js terminal per RESEARCH.md Pattern 1
     const term = new Terminal({
-      cursorBlink: false,
+      cursorBlink: false, // Per D-09
       fontSize: 14,
-      fontFamily: 'Menlo, Monaco, Consolas, "Courier New", monospace',
+      fontFamily: "Menlo, Monaco, Consolas, monospace",
       theme: XTERM_DARK_THEME,
       scrollback: 10000,
       allowProposedApi: true,
     });
 
-    // Create and load the fit addon for auto-resize
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
 
-    // Mount terminal to DOM
-    term.open(containerRef.current);
+    // Load clipboard addon for copy support (OUT-04)
+    const clipboardAddon = new ClipboardAddon();
+    term.loadAddon(clipboardAddon);
+
+    term.open(terminalRef.current);
     fitAddon.fit();
 
-    // Store references for external access
-    terminalRef.current = term;
+    terminalInstanceRef.current = term;
     fitAddonRef.current = fitAddon;
 
-    // Initial welcome message
-    term.writeln('\x1b[1;36mGSD UI Terminal\x1b[0m');
-    term.writeln('Ready for output...\r\n');
+    // Notify parent that terminal is ready
+    onTerminalReady?.(term);
 
-    // Handle window resize
-    const handleResize = () => {
-      fitAddon.fit();
+    // Track selection state for Copy button visibility
+    term.onSelectionChange(handleSelectionChangeCallback);
+
+    // Handle scroll events to detect when user has scrolled up per RESEARCH.md Pattern 3
+    const handleScroll = () => {
+      const buffer = term.buffer.active;
+      // Access viewport position - note: _core is internal API
+      // If this becomes unstable, we'll need to use a public API alternative
+      const viewportY = (term as any)._core?._viewport?._ydisp || 0;
+      const bufferHeight = buffer.length;
+      const threshold = 100; // Per D-12: within 100px of bottom
+
+      const isNearBottom = bufferHeight - viewportY < threshold;
+
+      setUserScrolled(!isNearBottom);
     };
+    term.onScroll(handleScroll);
 
-    window.addEventListener('resize', handleResize);
-
-    // Cleanup on unmount
+    // CRITICAL: Cleanup to prevent memory leaks per RESEARCH.md
     return () => {
-      window.removeEventListener('resize', handleResize);
+      term.onScroll(() => {});
+      term.onSelectionChange(() => {});
       term.dispose();
     };
-  }, []);
+  }, [onTerminalReady, handleSelectionChangeCallback]);
+
+  // Scroll to bottom handler
+  const scrollToBottom = () => {
+    terminalInstanceRef.current?.scrollToBottom();
+    setUserScrolled(false);
+  };
 
   return (
-    <div
-      ref={containerRef}
-      className={`TerminalOutput ${className}`}
-      style={{
-        // Container fills parent; theme controls actual terminal colors
-        width: '100%',
-        height: '100%',
-      }}
-    />
+    <div className={`relative h-full w-full ${className}`}>
+      <div
+        ref={terminalRef}
+        className="h-full w-full"
+        style={{ minHeight: "100%" }}
+      />
+      <JumpToBottom visible={userScrolled} onClick={scrollToBottom} />
+    </div>
   );
-};
-
-export default TerminalOutput;
+}

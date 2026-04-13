@@ -1,62 +1,69 @@
-import { useRef, useEffect } from 'react';
-import { useCLIStore } from '@/stores/cliStore';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
-import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
+import { useState, useCallback } from "react";
+import type { Terminal } from "@xterm/xterm";
+import { useCLIStore } from "@/stores/cliStore";
+import { Button } from "@/components/ui/button";
+import { Copy, Trash2 } from "lucide-react";
+import { TerminalOutput } from "@/components/terminal/TerminalOutput";
 
 export function TerminalView() {
-  const { output, clearOutput, isRunning } = useCLIStore();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [hasSelection, setHasSelection] = useState(false);
+  const { terminalRef, setTerminalRef, clearTerminal } = useCLIStore();
 
-  // Auto-scroll to bottom when output changes
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  const handleTerminalReady = useCallback((terminal: Terminal) => {
+    setTerminalRef(terminal);
+  }, [setTerminalRef]);
+
+  const handleSelectionChange = useCallback((hasSel: boolean) => {
+    setHasSelection(hasSel);
+  }, []);
+
+  const handleCopy = useCallback(() => {
+    // ClipboardAddon handles native copy, but we also support manual copy
+    const selection = terminalRef?.getSelection();
+    if (selection) {
+      navigator.clipboard.writeText(selection);
     }
-  }, [output]);
+  }, [terminalRef]);
+
+  const handleClear = useCallback(() => {
+    clearTerminal();
+  }, [clearTerminal]);
 
   return (
     <div className="h-full flex flex-col">
       {/* Terminal Header */}
       <div className="shrink-0 px-4 py-3 border-b flex items-center justify-between">
-        <h2 className="text-sm font-medium">Output</h2>
-        {output.length > 0 && (
-          <Button variant="ghost" size="sm" onClick={clearOutput}>
+        <h2 className="text-sm font-medium">Terminal</h2>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCopy}
+            disabled={!hasSelection}
+            title="Copy selection"
+          >
+            <Copy className="w-4 h-4 mr-1" />
+            Copy
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClear}
+            title="Clear terminal"
+          >
             <Trash2 className="w-4 h-4 mr-1" />
             Clear
           </Button>
-        )}
+        </div>
       </div>
 
       {/* Terminal Content */}
-      <ScrollArea className="flex-1">
-        <ScrollAreaPrimitive.Viewport ref={scrollRef}>
-          <div className="p-4 font-mono text-sm">
-          {output.length === 0 ? (
-            <p className="text-muted-foreground">
-              Run a command to see output here.
-            </p>
-          ) : (
-            <div className="space-y-0.5">
-              {output.map((line, i) => (
-                <div
-                  key={`line-${i}-${line.length}`}
-                  className="whitespace-pre-wrap break-all"
-                >
-                  {line}
-                </div>
-              ))}
-            </div>
-          )}
-          {isRunning && (
-            <div className="mt-2 text-muted-foreground animate-pulse">
-              [Running...]
-            </div>
-          )}
-          </div>
-        </ScrollAreaPrimitive.Viewport>
-      </ScrollArea>
+      <div className="flex-1 overflow-hidden">
+        <TerminalOutput
+          onSelectionChange={handleSelectionChange}
+          onTerminalReady={handleTerminalReady}
+        />
+      </div>
     </div>
   );
 }
