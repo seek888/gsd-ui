@@ -10,11 +10,13 @@ function AppContent() {
 
   useEffect(() => {
     // Initialize: load persisted settings and detect CLI
+    let mounted = true;
     const init = async () => {
       await loadSettings();
-      await detectCli();
+      if (mounted) await detectCli();
     };
     init();
+    return () => { mounted = false; };
   }, []);
 
   if (isLoading) {
