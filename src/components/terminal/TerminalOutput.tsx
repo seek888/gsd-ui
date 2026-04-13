@@ -60,9 +60,9 @@ export function TerminalOutput({ className = "", onSelectionChange, onTerminalRe
     // Handle scroll events to detect when user has scrolled up per RESEARCH.md Pattern 3
     const handleScroll = () => {
       const buffer = term.buffer.active;
-      // Access viewport position - note: _core is internal API
-      // If this becomes unstable, we'll need to use a public API alternative
-      const viewportY = (term as any)._core?._viewport?._ydisp || 0;
+      // Use the public API for detecting scroll position where possible
+      // _ydisp is unfortunately the only way currently - file issue with xterm.js for public API (WR-01)
+      const viewportY = (term as any)._core?.viewport?._ydisp || 0;
       const bufferHeight = buffer.length;
       const threshold = 100; // Per D-12: within 100px of bottom
 
