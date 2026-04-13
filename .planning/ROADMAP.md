@@ -6,7 +6,7 @@ A Tauri v2 + React desktop app that wraps the GSD CLI workflow. Users can trigge
 
 ## Phases
 
-- [ ] **Phase 1: Scaffold + Foundation** - Tauri v2 project setup, CLI detection, path selection, Zustand stores, capability configuration
+- [x] **Phase 1: Scaffold + Foundation** - Tauri v2 project setup, CLI detection, path selection, Zustand stores, capability configuration
 - [ ] **Phase 2: Command Execution + Output Streaming** - GSD command buttons, real-time stdout/stderr streaming, ANSI colors, cancel support
 - [ ] **Phase 3: File Browsing + Monaco Editor** - File tree, Markdown preview, Monaco editing, unsaved indicator, file watching
 - [ ] **Phase 4: Progress & State Views** - Phase list with completion, expandable plans, session context, attention panel
@@ -119,8 +119,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold + Foundation | 0/3 | Not started | - |
-| 2. Command Execution + Output Streaming | 0/6 | Not started | - |
+| 1. Scaffold + Foundation | 3/3 | Complete | 2026-04-13 |
+| 2. Command Execution + Output Streaming | 0/6 | Planning complete | - |
 | 3. File Browsing + Monaco Editor | 0/5 | Not started | - |
 | 4. Progress & State Views | 0/4 | Not started | - |
 | 5. Polish + Distribution | 0/5 | Not started | - |
@@ -128,3 +128,27 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 **Coverage:**
 - v1 requirements: 22 total
 - Mapped to phases: 22/22
+
+**Phase 2 Detail:**
+
+| Plan | Requirements | Tasks | Wave | Status |
+|------|--------------|-------|------|--------|
+| 02-01 | CMD-01, CMD-02 | 3 | 1 | Ready |
+| 02-02 | CMD-03, CMD-04 | 3 | 2 | Ready |
+| 02-03 | OUT-01 | 4 | 3 | Ready |
+| 02-04 | OUT-02 | 3 | 4 | Ready |
+| 02-05 | OUT-03 | 3 | 5 | Ready |
+| 02-06 | OUT-04 | 4 | 6 | Ready |
+
+**Wave Structure:**
+
+| Wave | Plans | Parallel Execution |
+|------|-------|-------------------|
+| 1 | 02-01 | Independent (no deps) |
+| 2 | 02-02 | After 02-01 |
+| 3 | 02-03 | After 02-02 |
+| 4 | 02-04 | After 02-03 |
+| 5 | 02-05 | After 02-04 |
+| 6 | 02-06 | After 02-05 |
+
+**Total Tasks:** 20 tasks across 6 plans
