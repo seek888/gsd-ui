@@ -75,11 +75,18 @@ export const useCLIStore = create<CLIState>((set, get) => ({
   },
 
   appendOutput: (line, source = 'stdout') => {
+    const { terminalRef } = get();
     set((state) => {
       const newOutput = [...state.output, `[${source}] ${line}`];
       if (newOutput.length > MAX_OUTPUT_LINES) {
         newOutput.splice(0, newOutput.length - MAX_OUTPUT_LINES);
       }
+
+      // Write to terminal instance (CR-02)
+      if (terminalRef) {
+        terminalRef.write(`${line}\r\n`);
+      }
+
       return { output: newOutput };
     });
   },
