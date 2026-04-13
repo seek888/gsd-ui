@@ -31,7 +31,7 @@ export function DocumentsView() {
     let unwatch: (() => void) | null = null;
 
     watchDirectory(planningPath, async (event) => {
-      const { setFileTree, setExternalModification, openFile } = useFileStore.getState();
+      const { setExternalModification, openFile } = useFileStore.getState();
 
       // Reload file tree structure
       await refreshFileTree();

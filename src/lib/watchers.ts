@@ -1,4 +1,13 @@
-import { watch } from '@tauri-apps/plugin-fs';
+import { watchImmediate } from '@tauri-apps/plugin-fs';
+import type { WatchEvent, WatchOptions } from '@tauri-apps/plugin-fs';
+
+// Type assertion to work around TS overload resolution issue with bundler moduleResolution
+type WatchFn = (
+  paths: string | string[] | URL | URL[],
+  opts: WatchOptions,
+  cb: (event: WatchEvent) => void
+) => Promise<() => void>;
+const safeWatch = watchImmediate as unknown as WatchFn;
 
 /**
  * Creates a debounced callback that delays execution until after the
@@ -33,8 +42,13 @@ export async function watchDirectory(
   debounceMs: number = 500
 ): Promise<() => void> {
   const [debouncedOnChange] = createDebouncedCallback(onChange, debounceMs);
-  const unwatch = await watch(path, { recursive: true }, (event) => {
-    debouncedOnChange({ type: event.type, path: event.path });
-  });
+  const unwatch = await safeWatch(
+    path,
+    { recursive: true },
+    (event: WatchEvent) => {
+      const changedPath = event.paths[0] ?? '';
+      debouncedOnChange({ type: event.type as string, path: changedPath });
+    }
+  );
   return unwatch;
 }
