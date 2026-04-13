@@ -48,7 +48,7 @@ async function buildFileTree(dirPath: string): Promise<FileNode[]> {
 }
 
 export function FileTree() {
-  const { fileTree, setFileTree, openFileByPath, setViewMode } = useFileStore();
+  const { fileTree, setFileTree, openFileByPath, setViewMode, isFileDirty, openFile } = useFileStore();
   const projectPath = useProjectStore((s) => s.projectPath);
 
   const loadTree = useCallback(async () => {
@@ -65,6 +65,11 @@ export function FileTree() {
   const handleSelect = useCallback(
     (node: NodeApi<FileNode>) => {
       if (node.data.type === 'file') {
+        const { openFile } = useFileStore.getState();
+        if (openFile?.isDirty && openFile.path !== node.data.path) {
+          const proceed = confirm('You have unsaved changes. Do you want to continue?');
+          if (!proceed) return;
+        }
         openFileByPath(node.data.path);
       }
     },
@@ -129,10 +134,14 @@ export function FileTree() {
 
           {/* Name */}
           <span className="truncate text-sm">{node.data.name}</span>
+          {/* Dirty indicator dot */}
+          {!isFolder && isFileDirty(node.data.path) && (
+            <span className="text-yellow-500 font-bold shrink-0">&#8226;</span>
+          )}
         </div>
       );
     },
-    [handleSelect, handleDoubleClick]
+    [handleSelect, handleDoubleClick, isFileDirty]
   );
 
   if (!projectPath) {
