@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { readTextFile } from '@/lib/fs';
+import { readTextFile, writeTextFile } from '@/lib/fs';
 
 export interface FileNode {
   id: string;
@@ -24,9 +24,11 @@ interface FileState {
   setFileTree: (tree: FileNode[]) => void;
   openFileByPath: (path: string) => Promise<void>;
   setViewMode: (mode: ViewMode) => void;
+  saveFile: () => Promise<void>;
+  updateContent: (content: string) => void;
 }
 
-export const useFileStore = create<FileState>((set) => ({
+export const useFileStore = create<FileState>((set, get) => ({
   fileTree: [],
   openFile: null,
   viewMode: 'preview',
@@ -39,4 +41,17 @@ export const useFileStore = create<FileState>((set) => ({
   },
 
   setViewMode: (mode) => set({ viewMode: mode }),
+
+  saveFile: async () => {
+    const { openFile } = get();
+    if (!openFile) return;
+    await writeTextFile(openFile.path, openFile.content);
+    set({ openFile: { ...openFile, isDirty: false } });
+  },
+
+  updateContent: (content) => {
+    const { openFile } = get();
+    if (!openFile) return;
+    set({ openFile: { ...openFile, content, isDirty: true } });
+  },
 }));
