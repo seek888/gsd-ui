@@ -27,7 +27,7 @@ A Tauri v2 + React desktop app that wraps the GSD CLI workflow. Users can trigge
 **Plans**: 3 plans (consolidated from original 7)
 
 Plans:
-- [ ] 01-01: Scaffold Tauri v2 + React + TypeScript project, install all plugins, configure capabilities + CSP
+- [x] 01-01: Scaffold Tauri v2 + React + TypeScript project, install all plugins, configure capabilities + CSP
 - [ ] 01-02: Create Zustand stores (project, UI, CLI), lib helpers, and shadcn/ui base components
 - [ ] 01-03: Build App Shell (sidebar, WelcomePage, DirectoryPicker, 4 view shells) and wire persistence
 **UI hint**: yes

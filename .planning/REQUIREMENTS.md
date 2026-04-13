@@ -7,10 +7,10 @@
 
 ### Foundation (FOUND)
 
-- [ ] **FOUND-01**: 用户启动时应用自动检测 `claude` CLI 是否已安装（运行 `claude --version`）
-- [ ] **FOUND-02**: 若 CLI 未安装，显示安装引导页面而非主界面
-- [ ] **FOUND-03**: 用户可通过目录选择对话框指定 GSD 项目根目录
-- [ ] **FOUND-04**: 应用记住上次打开的项目路径，下次启动自动恢复
+- [x] **FOUND-01**: 用户启动时应用自动检测 `claude` CLI 是否已安装（运行 `claude --version`）
+- [x] **FOUND-02**: 若 CLI 未安装，显示安装引导页面而非主界面
+- [x] **FOUND-03**: 用户可通过目录选择对话框指定 GSD 项目根目录
+- [x] **FOUND-04**: 应用记住上次打开的项目路径，下次启动自动恢复
 
 ### Command Execution (CMD)
 
@@ -90,10 +90,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | Phase 1 | Pending |
-| FOUND-02 | Phase 1 | Pending |
-| FOUND-03 | Phase 1 | Pending |
-| FOUND-04 | Phase 1 | Pending |
+| FOUND-01 | Phase 1 | Complete |
+| FOUND-02 | Phase 1 | Complete |
+| FOUND-03 | Phase 1 | Complete |
+| FOUND-04 | Phase 1 | Complete |
 | CMD-01 | Phase 2 | Pending |
 | CMD-02 | Phase 2 | Pending |
 | CMD-03 | Phase 2 | Pending |
