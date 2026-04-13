@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './index.css';
+import '@xterm/xterm/css/xterm.css';
 
 function App() {
   const [status, setStatus] = useState('Loading...');
