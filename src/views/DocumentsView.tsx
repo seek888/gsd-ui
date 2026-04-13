@@ -1,13 +1,53 @@
+import { useEffect } from 'react';
 import { useFileStore } from '@/stores/fileStore';
+import { useProjectStore } from '@/stores/projectStore';
 import { FileTree } from '@/components/documents/FileTree';
 import { MarkdownPreview } from '@/components/documents/MarkdownPreview';
 import { FrontMatter } from '@/components/documents/FrontMatter';
 import { MonacoEditor } from '@/components/documents/MonacoEditor';
 import { EditModeToggle } from '@/components/documents/EditModeToggle';
 import { Button } from '@/components/ui/button';
+import { watchDirectory } from '@/lib/watchers';
 
 export function DocumentsView() {
-  const { openFile, viewMode, setViewMode, saveFile, updateContent } = useFileStore();
+  const {
+    openFile,
+    viewMode,
+    setViewMode,
+    saveFile,
+    updateContent,
+    externalModification,
+    reloadCurrentFile,
+    clearExternalModification,
+    refreshFileTree,
+  } = useFileStore();
+  const projectPath = useProjectStore((s) => s.projectPath);
+
+  // Initialize file watcher on mount, cleanup on unmount
+  useEffect(() => {
+    if (!projectPath) return;
+
+    const planningPath = `${projectPath}/.planning`;
+    let unwatch: (() => void) | null = null;
+
+    watchDirectory(planningPath, async (event) => {
+      const { setFileTree, setExternalModification, openFile } = useFileStore.getState();
+
+      // Reload file tree structure
+      await refreshFileTree();
+
+      // If current file was modified externally, set flag to prompt user
+      if (openFile && event.path === openFile.path) {
+        setExternalModification(openFile.path);
+      }
+    }, 500).then((cleanup) => {
+      unwatch = cleanup;
+    });
+
+    return () => {
+      unwatch?.();
+    };
+  }, [projectPath, refreshFileTree]);
 
   return (
     <div className="h-full flex flex-row">
@@ -33,6 +73,23 @@ export function DocumentsView() {
             )}
           </div>
         </div>
+
+        {/* External modification banner */}
+        {externalModification && (
+          <div className="shrink-0 px-4 py-2 bg-yellow-500/10 border-b border-yellow-500/20 flex items-center justify-between">
+            <span className="text-sm text-yellow-700 dark:text-yellow-300">
+              This file was modified externally.
+            </span>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" onClick={() => reloadCurrentFile()}>
+                Reload
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => clearExternalModification()}>
+                Keep local
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Content area */}
         {openFile ? (
