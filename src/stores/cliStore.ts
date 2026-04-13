@@ -1,14 +1,13 @@
 import { create } from 'zustand';
-import type { Child } from '@tauri-apps/plugin-shell';
 import type { Terminal } from '@xterm/xterm';
-import { runCommand } from '@/lib/shell';
+import { runCommand, type CommandWithEvents } from '@/lib/shell';
 
 const MAX_OUTPUT_LINES = 10000;
 
 interface RunningProcess {
   pid: number;
   name: string;
-  child: Child;
+  commandWithEvents: CommandWithEvents;
 }
 
 interface CLIState {
@@ -91,15 +90,17 @@ export const useCLIStore = create<CLIState>((set, get) => ({
         args,
         (data) => get().appendOutput(data, 'stdout'),
         (data) => get().appendOutput(data, 'stderr')
-      ).then((child) => {
+      ).then((commandWithEvents) => {
+        const { child } = commandWithEvents;
+
         set({
-          runningProcess: { pid: child.pid, name, child },
+          runningProcess: { pid: child.pid, name, commandWithEvents },
           isRunning: true,
         });
         resolve(child.pid);
 
         // Handle process exit
-        child.on('close', () => {
+        commandWithEvents.onClose(() => {
           set({ runningProcess: null, isRunning: false });
         });
       }).catch(reject);
@@ -120,7 +121,7 @@ export const useCLIStore = create<CLIState>((set, get) => ({
     const { runningProcess } = get();
     if (runningProcess) {
       try {
-        await runningProcess.child.kill();
+        await runningProcess.commandWithEvents.child.kill();
         set({ runningProcess: null, isRunning: false, error: null });
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);

@@ -1,4 +1,4 @@
-import { Command, type Child } from '@tauri-apps/plugin-shell';
+import { Command, type Child, type IOPayload } from '@tauri-apps/plugin-shell';
 
 const ALLOWED_COMMANDS = ['claude', 'npm', 'node', 'git', 'cargo', 'pnpm', 'yarn', 'bash', 'zsh', 'sh'] as const;
 const DANGEROUS_PATTERNS = [';', '&', '|', '`', '$(', '${', '\n', '\r'];
@@ -7,6 +7,12 @@ export interface CommandResult {
   pid: number;
   success: boolean;
   exitCode?: number;
+}
+
+export interface CommandWithEvents {
+  child: Child;
+  command: Command<IOPayload>;
+  onClose: (callback: (data: { code: number | null; signal: number | null }) => void) => void;
 }
 
 export async function checkClaudeInstalled(): Promise<{
@@ -44,7 +50,7 @@ export async function runCommand(
   args: string[],
   onStdout: (data: string) => void,
   onStderr: (data: string) => void
-): Promise<Child> {
+): Promise<CommandWithEvents> {
   if (!ALLOWED_COMMANDS.includes(program as any)) {
     throw new Error(`Command not allowed: ${program}`);
   }
@@ -62,5 +68,13 @@ export async function runCommand(
     throw err;
   }
 
-  return await cmd.spawn();
+  const child = await cmd.spawn();
+
+  return {
+    child,
+    command: cmd,
+    onClose: (callback) => {
+      cmd.on('close', callback);
+    },
+  };
 }

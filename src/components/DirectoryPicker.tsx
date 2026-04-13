@@ -7,7 +7,7 @@ import { useProjectStore } from '@/stores/projectStore';
 import { WelcomeLayout } from './WelcomeLayout';
 
 export function DirectoryPicker() {
-  const { saveProjectPath, cliVersion, setCliInstalled } = useProjectStore();
+  const { saveProjectPath, cliVersion } = useProjectStore();
 
   const handleSelectDirectory = async () => {
     try {
