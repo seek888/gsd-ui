@@ -101,21 +101,24 @@ export function CommandSidebar() {
    * Executes the command via cliStore and updates button state.
    */
   const handleCommandClick = async (command: GSDCommand) => {
+    // Set running state immediately (CR-03)
+    setCommandStates((prev) => {
+      const next = new Map(prev);
+      next.set(command.id, 'running');
+      return next;
+    });
+
     try {
       await executeCommand(command.cliCommand, command.args);
 
-      // Set running state immediately
+      // Process completed successfully - set success state (CR-03)
       setCommandStates((prev) => {
         const next = new Map(prev);
-        next.set(command.id, 'running');
+        next.set(command.id, 'success');
         return next;
       });
-
-      // Track the command completion via the child process close event
-      // The cliStore handles the process lifecycle, we just update UI state
-      // Success/failure will be determined by whether an error occurred
     } catch (error) {
-      // Set failure state on error
+      // Set failure state on error (CR-03)
       setCommandStates((prev) => {
         const next = new Map(prev);
         next.set(command.id, 'failure');
