@@ -120,8 +120,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold + Foundation | 3/3 | Complete | 2026-04-13 |
-| 2. Command Execution + Output Streaming | 0/6 | Planning complete | - |
-| 3. File Browsing + Monaco Editor | 0/5 | Not started | - |
+| 2. Command Execution + Output Streaming | 6/6 | Complete | 2026-04-13 |
+| 3. File Browsing + Monaco Editor | 0/5 | Planning complete | - |
 | 4. Progress & State Views | 0/4 | Not started | - |
 | 5. Polish + Distribution | 0/5 | Not started | - |
 
@@ -129,26 +129,22 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 - v1 requirements: 22 total
 - Mapped to phases: 22/22
 
-**Phase 2 Detail:**
+**Phase 3 Detail:**
 
 | Plan | Requirements | Tasks | Wave | Status |
 |------|--------------|-------|------|--------|
-| 02-01 | CMD-01, CMD-02 | 3 | 1 | Ready |
-| 02-02 | CMD-03, CMD-04 | 3 | 2 | Ready |
-| 02-03 | OUT-01 | 4 | 3 | Ready |
-| 02-04 | OUT-02 | 3 | 4 | Ready |
-| 02-05 | OUT-03 | 3 | 5 | Ready |
-| 02-06 | OUT-04 | 4 | 6 | Ready |
+| 03-01 | FILE-01 | 4 | 1 | Ready |
+| 03-02 | FILE-02 | 4 | 2 | Ready |
+| 03-03 | FILE-03 | 5 | 2 | Ready |
+| 03-04 | FILE-04 | 4 | 3 | Ready |
+| 03-05 | FILE-05 | 5 | 2 | Ready |
 
 **Wave Structure:**
 
 | Wave | Plans | Parallel Execution |
 |------|-------|-------------------|
-| 1 | 02-01 | Independent (no deps) |
-| 2 | 02-02 | After 02-01 |
-| 3 | 02-03 | After 02-02 |
-| 4 | 02-04 | After 02-03 |
-| 5 | 02-05 | After 02-04 |
-| 6 | 02-06 | After 02-05 |
+| 1 | 03-01 | Independent (no deps) |
+| 2 | 03-02, 03-03, 03-05 | Parallel after 03-01 |
+| 3 | 03-04 | After 03-03 |
 
-**Total Tasks:** 20 tasks across 6 plans
+**Total Tasks:** 22 tasks across 5 plans
