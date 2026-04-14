@@ -18,16 +18,18 @@ async function executeGsdTool<T>(
   projectPath: string,
   command: 'roadmap analyze' | 'state-snapshot'
 ): Promise<{ success: boolean; data?: T; error?: string }> {
-  const gsdToolsPath = `${projectPath}/node_modules/.bin/gsd-tools`;
+  // gsd-tools.cjs is located at .planning/bin/gsd-tools.cjs relative to project root
+  // Use absolute path for node to find the script
+  const gsdToolsAbsPath = `${projectPath}/.planning/bin/gsd-tools.cjs`;
 
   try {
     // Collect stdout output
     let stdoutOutput = '';
     let stderrOutput = '';
 
-    const { child, command: cmd, onClose } = await runCommand(
+    const { child, onClose } = await runCommand(
       'node',
-      [gsdToolsPath, command],
+      [gsdToolsAbsPath, command],
       (data) => { stdoutOutput += data; },
       (data) => { stderrOutput += data; }
     );

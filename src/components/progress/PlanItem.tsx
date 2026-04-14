@@ -1,4 +1,4 @@
-import { Check, Circle, FileText, FileCheck } from 'lucide-react';
+import { Circle, FileText, FileCheck } from 'lucide-react';
 import type { Plan } from '@/types/progress';
 import { cn } from '@/lib/utils';
 

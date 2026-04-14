@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import type { Phase, SessionState, RoadmapData, LoadingState } from '@/types/progress';
+import type { SessionState, RoadmapData, LoadingState } from '@/types/progress';
 import { analyzeRoadmap, getStateSnapshot } from '@/lib/gsd-tools';
 
 interface ProgressState {

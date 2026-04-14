@@ -70,7 +70,19 @@ export function DashboardView() {
   }
 
   // 无数据状态
-  if (!roadmapData || roadmapData.phases.length === 0) {
+  if (!roadmapData) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-6">
+        <FolderOpen className="h-12 w-12 text-muted-foreground mb-4" />
+        <h2 className="text-lg font-semibold mb-2">暂无项目进度数据</h2>
+        <p className="text-muted-foreground text-center max-w-md">
+          请确保在有效的 GSD 项目目录中，并检查 .planning/ROADMAP.md 文件是否存在。
+        </p>
+      </div>
+    );
+  }
+
+  if (roadmapData.phases.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-6">
         <FolderOpen className="h-12 w-12 text-muted-foreground mb-4" />

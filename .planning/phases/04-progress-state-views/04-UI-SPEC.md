@@ -1,7 +1,8 @@
 ---
 phase: 4
 slug: progress-state-views
-status: draft
+status: approved
+reviewed_at: 2026-04-14
 shadcn_initialized: true
 preset: shadcn/ui manual setup (no components.json)
 created: 2026-04-14
@@ -60,10 +61,9 @@ Declared values (must be multiples of 4):
 
 | Role | Size | Weight | Line Height | Source |
 |------|------|--------|-------------|--------|
-| Body | 14px (text-sm) | 400 (regular) | 1.5 | Existing CardDescription, label text |
-| Label | 14px (text-sm) | 500 (medium) | 1.5 | Form labels, secondary text |
+| Body | 14px (text-sm) | 400 (regular) | 1.5 | Body text, labels, secondary text |
 | Heading | 16px (text-base) | 600 (semibold) | 1.2 | Card titles, section headers |
-| Display | 24px (text-2xl) | 700 (bold) | 1.2 | Page title (Dashboard) |
+| Display | 24px (text-2xl) | 600 (semibold) | 1.2 | Page title (Dashboard) |
 
 **Font Stack:** Tailwind default (system-ui, -apple-system, sans-serif)
 
@@ -272,14 +272,14 @@ Declared values (must be multiples of 4):
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** APPROVED (2026-04-14)
 
 ---
 
