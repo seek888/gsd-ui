@@ -87,7 +87,7 @@ Plans:
 
 Plans:
 - [ ] 04-01: Add shadcn/ui components (Badge, Progress, Accordion, Separator) for progress visualization (PROG-01, PROG-02)
-- [ ] 04-02: Create progressStore Zustand store and gsd-tools wrapper for roadmap/state data parsing (PROG-01, PROG-02, PROG-03, PROG-05)
+- [ ] 04-02: Create progressStore Zustand store and gsd-tools wrapper for roadmap/state data parsing via CLI with markdown fallback (PROG-01, PROG-02, PROG-03, PROG-05)
 - [ ] 04-03: Implement PhaseCard and PlanItem components showing phase progress and plan completion status (PROG-01, PROG-02)
 - [ ] 04-04: Implement SessionContext and AttentionPanel components showing current session state and attention items (PROG-03, PROG-04)
 **UI hint**: yes
@@ -135,7 +135,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |------|--------------|-------|------|--------|
 | 04-01 | PROG-01, PROG-02 | 5 | 1 | Ready |
 | 04-02 | PROG-01, PROG-02, PROG-03, PROG-05 | 3 | 2 | Ready |
-| 04-03 | PROG-01, PROG-02 | 3 | 2 | Ready |
+| 04-03 | PROG-01, PROG-02 | 3 | 3 | Ready |
 | 04-04 | PROG-03, PROG-04 | 3 | 3 | Ready |
 
 **Wave Structure:**
@@ -143,7 +143,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Wave | Plans | Parallel Execution |
 |------|-------|-------------------|
 | 1 | 04-01 | Independent (no deps) |
-| 2 | 04-02, 04-03 | Parallel after 04-01 |
-| 3 | 04-04 | After 04-02, 04-03 |
+| 2 | 04-02 | After 04-01 |
+| 3 | 04-03, 04-04 | Parallel after 04-02 |
 
 **Total Tasks:** 14 tasks across 4 plans
