@@ -22,6 +22,8 @@ interface CLIState {
   clearError: () => void;
   executeCommand: (name: string, args: string[]) => Promise<number>;
   appendOutput: (line: string, source?: 'stdout' | 'stderr') => void;
+  writeStdout: (data: string) => void;
+  writeStderr: (data: string) => void;
   killCommand: () => Promise<void>;
   clearOutput: () => void;
   clearTerminal: () => void;
@@ -38,8 +40,33 @@ export const useCLIStore = create<CLIState>((set, get) => ({
 
   clearError: () => set({ error: null }),
 
+  writeStdout: (data) => {
+    const { terminalRef } = get();
+    if (!terminalRef) return;
+
+    // Throttle writes using requestAnimationFrame per OUT-01
+    requestAnimationFrame(() => {
+      terminalRef?.write(data);
+    });
+  },
+
+  writeStderr: (data) => {
+    const { terminalRef } = get();
+    if (!terminalRef) return;
+
+    requestAnimationFrame(() => {
+      // Write stderr with red color if not already colored
+      const hasColor = data.includes('\x1b[');
+      if (!hasColor) {
+        terminalRef?.write(`\x1b[31m${data}\x1b[0m`);
+      } else {
+        terminalRef?.write(data);
+      }
+    });
+  },
+
   executeCommand: async (name, args) => {
-    const { clearOutput, runningProcess } = get();
+    const { clearOutput, clearTerminal, runningProcess } = get();
 
     // Kill existing process before starting new one (CR-04)
     if (runningProcess) {
@@ -51,13 +78,14 @@ export const useCLIStore = create<CLIState>((set, get) => ({
     }
 
     clearOutput();
+    clearTerminal();
 
     return new Promise((resolve, reject) => {
       runCommand(
         name,
         args,
-        (data) => get().appendOutput(data, 'stdout'),
-        (data) => get().appendOutput(data, 'stderr')
+        (data) => get().writeStdout(data),
+        (data) => get().writeStderr(data)
       ).then((commandWithEvents) => {
         const { child, onClose } = commandWithEvents;
         const pid = child.pid;
