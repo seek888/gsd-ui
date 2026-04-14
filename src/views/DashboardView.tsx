@@ -7,6 +7,7 @@ import { SessionContext } from '@/components/progress/SessionContext';
 import { AttentionPanel } from '@/components/progress/AttentionPanel';
 import { DirectoryPicker } from '@/components/DirectoryPicker';
 import { cn } from '@/lib/utils';
+import type { LoadingState } from '@/types/progress';
 
 export function DashboardView() {
   const { projectPath } = useProjectStore();
@@ -109,9 +110,9 @@ export function DashboardView() {
         <button
           onClick={() => refreshData(projectPath)}
           className="flex items-center gap-2 px-3 py-2 text-sm bg-secondary hover:bg-secondary/80 rounded-md transition-colors"
-          disabled={loadingState === 'loading'}
+          disabled={(loadingState as LoadingState) === 'loading'}
         >
-          <RefreshCw className={cn("h-4 w-4", loadingState === 'loading' && "animate-spin")} />
+          <RefreshCw className={cn("h-4 w-4", (loadingState as LoadingState) === 'loading' && "animate-spin")} />
           刷新
         </button>
       </div>
