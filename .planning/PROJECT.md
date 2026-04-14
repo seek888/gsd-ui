@@ -77,3 +77,14 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 *Last updated: 2026-04-13 after initialization*
+
+## Phase 03 Complete (2026-04-14)
+
+File Browsing + Monaco Editor - Users can browse  directory, preview rendered Markdown, and edit files with Monaco.
+
+**Validated Requirements:**
+- FILE-01: File tree with react-arborist
+- FILE-02: Markdown preview with syntax highlighting
+- FILE-03: Monaco editor integration
+- FILE-04: Dirty state tracking
+- FILE-05: File watching
