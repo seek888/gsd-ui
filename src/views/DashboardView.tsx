@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { FolderOpen, RefreshCw, AlertCircle } from 'lucide-react';
 import { useProgressStore } from '@/stores/progressStore';
 import { useProjectStore } from '@/stores/projectStore';
@@ -10,22 +10,22 @@ import { cn } from '@/lib/utils';
 import type { LoadingState } from '@/types/progress';
 
 export function DashboardView() {
-  const { projectPath } = useProjectStore();
-  const {
-    roadmapData,
-    sessionState,
-    loadingState,
-    error,
-    expandedPhases,
-    loadProgressData,
-    refreshData,
-    togglePhaseExpansion,
-    clearError,
-  } = useProgressStore();
+  const projectPath = useProjectStore((s) => s.projectPath);
+  const roadmapData = useProgressStore((s) => s.roadmapData);
+  const sessionState = useProgressStore((s) => s.sessionState);
+  const loadingState = useProgressStore((s) => s.loadingState);
+  const error = useProgressStore((s) => s.error);
+  const expandedPhases = useProgressStore((s) => s.expandedPhases);
+  const loadProgressData = useProgressStore((s) => s.loadProgressData);
+  const refreshData = useProgressStore((s) => s.refreshData);
+  const togglePhaseExpansion = useProgressStore((s) => s.togglePhaseExpansion);
+  const clearError = useProgressStore((s) => s.clearError);
 
-  // 加载进度数据
+  const hasLoaded = useRef(false);
+
   useEffect(() => {
-    if (projectPath) {
+    if (projectPath && !hasLoaded.current) {
+      hasLoaded.current = true;
       loadProgressData(projectPath);
     }
   }, [projectPath, loadProgressData]);

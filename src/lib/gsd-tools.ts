@@ -7,8 +7,10 @@ import { readTextFile } from '@tauri-apps/plugin-fs';
 import { runCommand } from '@/lib/shell';
 import type {
   Phase, Plan, SessionState, RoadmapData,
-  GsdToolsRoadmapOutput, GsdToolsStateOutput
+  GsdToolsProgressOutput, GsdToolsRoadmapOutput, GsdToolsStateOutput
 } from '@/types/progress';
+
+type GsdToolCommand = readonly string[];
 
 /**
  * Execute gsd-tools.cjs command and parse JSON output
@@ -16,7 +18,7 @@ import type {
  */
 async function executeGsdTool<T>(
   projectPath: string,
-  command: 'roadmap analyze' | 'state-snapshot'
+  command: GsdToolCommand
 ): Promise<{ success: boolean; data?: T; error?: string }> {
   // gsd-tools.cjs is located at .planning/bin/gsd-tools.cjs relative to project root
   // Use absolute path for node to find the script
@@ -29,9 +31,10 @@ async function executeGsdTool<T>(
 
     const { child, onClose } = await runCommand(
       'node',
-      [gsdToolsAbsPath, command],
+      [gsdToolsAbsPath, '--cwd', projectPath, ...command],
       (data) => { stdoutOutput += data; },
-      (data) => { stderrOutput += data; }
+      (data) => { stderrOutput += data; },
+      { cwd: projectPath }
     );
 
     // Wait for command completion
@@ -73,42 +76,103 @@ async function executeGsdTool<T>(
  * Convert gsd-tools roadmap output to internal RoadmapData format
  */
 function convertRoadmapOutput(output: GsdToolsRoadmapOutput): RoadmapData {
-  const phases: Phase[] = output.phases.map((p) => {
-    const plans: Plan[] = p.plans.map((pl) => ({
-      id: pl.id,
-      name: pl.name,
-      status: pl.hasSummaryMd ? 'complete' : (pl.hasPlanMd ? 'in-progress' : 'not-started'),
-      hasPlanMd: pl.hasPlanMd,
-      hasSummaryMd: pl.hasSummaryMd,
-    }));
+  const phases: Phase[] = output.phases.map((p): Phase => {
+    const phaseNumber = parseCliNumber(p.number);
+    const phaseName = p.name;
+    const plans: Plan[] = Array.isArray(p.plans)
+      ? p.plans.map((pl): Plan => ({
+          id: pl.id,
+          name: pl.name,
+          status: pl.hasSummaryMd ? 'complete' : (pl.hasPlanMd ? 'in-progress' : 'not-started'),
+          hasPlanMd: pl.hasPlanMd,
+          hasSummaryMd: pl.hasSummaryMd,
+        }))
+      : createPlaceholderPlans(
+          phaseNumber,
+          parseCliNumber(p.plan_count),
+          parseCliNumber(p.summary_count)
+        );
 
-    const completedPlans = plans.filter(pl => pl.status === 'complete').length;
+    const completedPlans = Array.isArray(p.plans)
+      ? plans.filter(pl => pl.status === 'complete').length
+      : parseCliNumber(p.summary_count);
+    const plansCount = Array.isArray(p.plans)
+      ? plans.length
+      : parseCliNumber(p.plan_count);
 
     return {
-      number: p.number,
-      slug: p.slug,
-      name: p.name,
-      status: completedPlans === plans.length ? 'complete' :
+      number: phaseNumber,
+      slug: p.slug || generateSlug(phaseName),
+      name: phaseName,
+      status: completedPlans === plansCount && plansCount > 0 ? 'complete' :
               (completedPlans > 0 ? 'in-progress' : 'not-started'),
-      progress: plans.length > 0 ? Math.round((completedPlans / plans.length) * 100) : 0,
-      plansCount: plans.length,
+      progress: plansCount > 0 ? Math.round((completedPlans / plansCount) * 100) : 0,
+      plansCount,
       completedPlans,
       plans,
-      isActive: p.number === output.currentPhaseNumber,
+      isActive: phaseNumber === parseCliNumber(output.currentPhaseNumber ?? output.current_phase),
     };
   });
 
-  const totalPlans = phases.reduce((sum, p) => sum + p.plansCount, 0);
-  const completedPlans = phases.reduce((sum, p) => sum + p.completedPlans, 0);
-  const overallProgress = totalPlans > 0 ? Math.round((completedPlans / totalPlans) * 100) : 0;
+  const totalPlans = parseCliNumber(output.totalPlans ?? output.total_plans)
+    || phases.reduce((sum, p) => sum + p.plansCount, 0);
+  const completedPlans = parseCliNumber(output.completedPlans ?? output.total_summaries)
+    || phases.reduce((sum, p) => sum + p.completedPlans, 0);
+  const overallProgress = parseCliNumber(output.overallProgress ?? output.progress_percent)
+    || (totalPlans > 0 ? Math.round((completedPlans / totalPlans) * 100) : 0);
+  const currentPhaseNumber = parseCliNumber(output.currentPhaseNumber ?? output.current_phase)
+    || phases.find((phase) => phase.status !== 'complete')?.number
+    || phases.length;
+
+  phases.forEach((phase) => {
+    phase.isActive = phase.number === currentPhaseNumber;
+  });
+
+  return {
+    phases,
+    totalPhases: parseCliNumber(output.totalPhases ?? output.phase_count) || phases.length,
+    totalPlans,
+    completedPlans,
+    overallProgress,
+    currentPhaseNumber,
+  };
+}
+
+function convertProgressOutput(output: GsdToolsProgressOutput): RoadmapData {
+  const phases: Phase[] = output.phases.map((phase): Phase => {
+    const phaseNumber = parseCliNumber(phase.number);
+    const plansCount = parseCliNumber(phase.plans);
+    const completedPlans = parseCliNumber(phase.summaries);
+    const plans = createPlaceholderPlans(phaseNumber, plansCount, completedPlans);
+
+    return {
+      number: phaseNumber,
+      slug: generateSlug(phase.name),
+      name: phase.name,
+      status: completedPlans === plansCount && plansCount > 0 ? 'complete' :
+              (completedPlans > 0 ? 'in-progress' : 'not-started'),
+      progress: plansCount > 0 ? Math.round((completedPlans / plansCount) * 100) : 0,
+      plansCount,
+      completedPlans,
+      plans,
+      isActive: false,
+    };
+  });
+
+  const currentPhaseNumber =
+    phases.find((phase) => phase.status !== 'complete')?.number || phases.length;
+
+  phases.forEach((phase) => {
+    phase.isActive = phase.number === currentPhaseNumber;
+  });
 
   return {
     phases,
     totalPhases: phases.length,
-    totalPlans,
-    completedPlans,
-    overallProgress,
-    currentPhaseNumber: output.currentPhaseNumber,
+    totalPlans: parseCliNumber(output.total_plans),
+    completedPlans: parseCliNumber(output.total_summaries),
+    overallProgress: parseCliNumber(output.percent),
+    currentPhaseNumber,
   };
 }
 
@@ -117,9 +181,9 @@ function convertRoadmapOutput(output: GsdToolsRoadmapOutput): RoadmapData {
  */
 function convertStateOutput(output: GsdToolsStateOutput): SessionState {
   return {
-    currentPhase: output.currentPhase,
-    currentPlan: output.currentPlan,
-    lastActivity: output.lastActivity || 'No recent activity',
+    currentPhase: parseCliNumber(output.currentPhase ?? output.current_phase) || 1,
+    currentPlan: parseOptionalCliNumber(output.currentPlan ?? output.current_plan),
+    lastActivity: output.lastActivity ?? output.last_activity ?? 'No recent activity',
     blockers: output.blockers?.map((b, i) => ({
       id: `blocker-${i}`,
       description: b.description,
@@ -337,19 +401,37 @@ async function fallbackAnalyzeRoadmap(projectPath: string): Promise<RoadmapData>
  */
 export async function analyzeRoadmap(projectPath: string): Promise<RoadmapData> {
   // Try gsd-tools CLI first
-  const cliResult = await executeGsdTool<GsdToolsRoadmapOutput>(projectPath, 'roadmap analyze');
+  const cliErrors: string[] = [];
+  const cliResult = await executeGsdTool<GsdToolsRoadmapOutput>(projectPath, ['roadmap', 'analyze', '--raw']);
 
   if (cliResult.success && cliResult.data) {
-    return convertRoadmapOutput(cliResult.data);
+    try {
+      return convertRoadmapOutput(cliResult.data);
+    } catch (error) {
+      cliErrors.push(`roadmap analyze parse failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  } else if (cliResult.error) {
+    cliErrors.push(`roadmap analyze failed: ${cliResult.error}`);
+  }
+
+  const progressResult = await executeGsdTool<GsdToolsProgressOutput>(projectPath, ['progress', 'json', '--raw']);
+  if (progressResult.success && progressResult.data) {
+    try {
+      return convertProgressOutput(progressResult.data);
+    } catch (error) {
+      cliErrors.push(`progress json parse failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  } else if (progressResult.error) {
+    cliErrors.push(`progress json failed: ${progressResult.error}`);
   }
 
   // CLI failed, fallback to markdown parsing
-  console.warn('gsd-tools CLI failed, falling back to markdown parsing:', cliResult.error);
+  console.warn('gsd-tools CLI failed, falling back to markdown parsing:', cliErrors);
   try {
     return await fallbackAnalyzeRoadmap(projectPath);
   } catch (fallbackError) {
     throw new Error(
-      `Failed to load roadmap data. CLI error: ${cliResult.error || 'unknown'}. ` +
+      `Failed to load roadmap data. CLI error: ${cliErrors.join(' | ') || 'unknown'}. ` +
       `Fallback error: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`
     );
   }
@@ -361,7 +443,7 @@ export async function analyzeRoadmap(projectPath: string): Promise<RoadmapData> 
  */
 export async function getStateSnapshot(projectPath: string): Promise<SessionState> {
   // Try gsd-tools CLI first
-  const cliResult = await executeGsdTool<GsdToolsStateOutput>(projectPath, 'state-snapshot');
+  const cliResult = await executeGsdTool<GsdToolsStateOutput>(projectPath, ['state-snapshot', '--raw']);
 
   if (cliResult.success && cliResult.data) {
     return convertStateOutput(cliResult.data);
@@ -413,4 +495,40 @@ function generateSlug(text: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
+}
+
+function parseCliNumber(value: number | string | null | undefined): number {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
+  }
+  if (typeof value === 'string') {
+    const parsed = parseInt(value, 10);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+}
+
+function parseOptionalCliNumber(value: number | string | null | undefined): number | null {
+  const parsed = parseCliNumber(value);
+  return parsed > 0 ? parsed : null;
+}
+
+function createPlaceholderPlans(
+  phaseNumber: number,
+  plansCount: number,
+  completedPlans: number
+): Plan[] {
+  return Array.from({ length: plansCount }, (_, index) => {
+    const planIndex = index + 1;
+    const id = `${String(phaseNumber).padStart(2, '0')}-${String(planIndex).padStart(2, '0')}`;
+    const isComplete = planIndex <= completedPlans;
+
+    return {
+      id,
+      name: `Plan ${id}`,
+      status: isComplete ? 'complete' : 'not-started',
+      hasPlanMd: true,
+      hasSummaryMd: isComplete,
+    };
+  });
 }

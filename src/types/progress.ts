@@ -83,26 +83,56 @@ export interface SessionState {
  */
 export interface GsdToolsRoadmapOutput {
   phases: Array<{
-    number: number;
+    number: number | string;
     slug: string;
     name: string;
-    plans: Array<{
+    plans?: Array<{
       id: string;
       name: string;
       hasPlanMd: boolean;
       hasSummaryMd: boolean;
     }>;
+    plan_count?: number | string;
+    summary_count?: number | string;
   }>;
-  currentPhaseNumber: number;
+  currentPhaseNumber?: number | string;
+  current_phase?: number | string;
+  totalPhases?: number | string;
+  phase_count?: number | string;
+  totalPlans?: number | string;
+  total_plans?: number | string;
+  completedPlans?: number | string;
+  total_summaries?: number | string;
+  overallProgress?: number | string;
+  progress_percent?: number | string;
+}
+
+/**
+ * gsd-tools CLI JSON output structure (progress json)
+ */
+export interface GsdToolsProgressOutput {
+  phases: Array<{
+    number: number | string;
+    name: string;
+    plans: number | string;
+    summaries: number | string;
+    status: string;
+  }>;
+  total_plans: number | string;
+  total_summaries: number | string;
+  percent: number | string;
 }
 
 /**
  * gsd-tools CLI JSON output structure (state-snapshot)
  */
 export interface GsdToolsStateOutput {
-  currentPhase: number;
-  currentPlan: number | null;
+  currentPhase?: number | string | null;
+  current_phase?: number | string | null;
+  currentPlan?: number | string | null;
+  current_plan?: number | string | null;
   lastActivity?: string;
+  last_activity?: string;
   blockers?: Array<{
     description: string;
     severity?: 'low' | 'medium' | 'high';

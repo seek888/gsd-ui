@@ -100,7 +100,10 @@ export async function runCommand(
   program: string,
   args: string[],
   onStdout: (data: string) => void,
-  onStderr: (data: string) => void
+  onStderr: (data: string) => void,
+  options?: {
+    cwd?: string;
+  }
 ): Promise<CommandWithEvents> {
   if (!ALLOWED_COMMANDS.includes(program as any)) {
     throw new Error(`Command not allowed: ${program}`);
@@ -142,9 +145,13 @@ export async function runCommand(
 
     if (useBashWrapper) {
       const escapedArgs = args.map(a => `'${a.replace(/'/g, "'\\''")}'`).join(' ');
-      cmd = Command.create('bash', ['-c', `PATH="${extendedPath}:$PATH" ${program} ${escapedArgs}`]);
+      cmd = Command.create(
+        'bash',
+        ['-c', `PATH="${extendedPath}:$PATH" ${program} ${escapedArgs}`],
+        { cwd: options?.cwd }
+      );
     } else {
-      cmd = Command.create(program, args);
+      cmd = Command.create(program, args, { cwd: options?.cwd });
     }
   }
 
