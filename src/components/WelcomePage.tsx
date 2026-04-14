@@ -5,7 +5,7 @@ import { useProjectStore } from '@/stores/projectStore';
 import { WelcomeLayout } from './WelcomeLayout';
 
 export function WelcomePage() {
-  const { detectCli, cliVersion, cliInstalled } = useProjectStore();
+  const { detectCli, cliVersion, cliInstalled, error } = useProjectStore();
 
   return (
     <WelcomeLayout>
@@ -43,6 +43,11 @@ export function WelcomePage() {
         <CardContent className="space-y-4">
           {!cliInstalled ? (
             <>
+              {error && (
+                <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                  {error}
+                </div>
+              )}
               <div className="space-y-2">
                 <p className="text-sm font-medium">Install the Claude CLI:</p>
                 <div className="bg-muted rounded-md p-3 font-mono text-sm select-all">

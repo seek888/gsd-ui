@@ -20,16 +20,27 @@ export async function checkClaudeInstalled(): Promise<{
   version?: string;
   error?: string
 }> {
-  try {
-    const cmd = Command.create('claude', ['--version']);
-    const output = await cmd.execute();
-    if (output.code === 0) {
-      return { installed: true, version: output.stdout.trim() };
+  // Use bash to search PATH for claude, since Tauri shell plugin may have limited PATH
+  const searchPaths = [
+    '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin',
+    '/usr/local/bin:/usr/bin:/bin',
+  ];
+  let lastError: string | undefined;
+
+  for (const path of searchPaths) {
+    try {
+      const cmd = Command.create('bash', ['-c', `PATH="${path}:$PATH" claude --version 2>&1`]);
+      const output = await cmd.execute();
+      if (output.code === 0 && output.stdout.trim()) {
+        return { installed: true, version: output.stdout.trim() };
+      }
+      lastError = output.stderr.trim() || output.stdout.trim() || `claude exited with code ${output.code}`;
+    } catch (err) {
+      lastError = err instanceof Error ? err.message : String(err);
     }
-    return { installed: false, error: output.stderr || `Exit code: ${output.code}` };
-  } catch (err) {
-    return { installed: false, error: String(err) };
   }
+
+  return { installed: false, error: lastError || 'Claude CLI not found' };
 }
 
 /**
@@ -57,7 +68,22 @@ export async function runCommand(
 
   validateArgs(args);
 
-  const cmd = Command.create(program, args);
+  // Use bash with extended PATH for claude since Tauri shell may have limited PATH
+  let resolvedProgram = program;
+  let useBashWrapper = false;
+  const extendedPath = '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin';
+
+  if (program === 'claude') {
+    useBashWrapper = true;
+  }
+
+  let cmd;
+  if (useBashWrapper) {
+    const escapedArgs = args.map(a => `'${a.replace(/'/g, "'\\''")}'`).join(' ');
+    cmd = Command.create('bash', ['-c', `PATH="${extendedPath}:$PATH" ${program} ${escapedArgs}`]);
+  } else {
+    cmd = Command.create(resolvedProgram, args);
+  }
 
   // Wrap event registration in try-catch to handle failures
   try {

@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { Tree } from 'react-arborist';
 import type { NodeApi } from 'react-arborist';
 import type { RowRendererProps } from 'react-arborist';
@@ -48,8 +48,10 @@ async function buildFileTree(dirPath: string): Promise<FileNode[]> {
 }
 
 export function FileTree() {
-  const { fileTree, setFileTree, openFileByPath, setViewMode, isFileDirty, openFile } = useFileStore();
+  const { fileTree, setFileTree, openFileByPath, setViewMode, isFileDirty } = useFileStore();
   const projectPath = useProjectStore((s) => s.projectPath);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ height: 400, width: 200 });
 
   const loadTree = useCallback(async () => {
     if (!projectPath) return;
@@ -57,6 +59,27 @@ export function FileTree() {
     const tree = await buildFileTree(planningPath);
     setFileTree(tree);
   }, [projectPath, setFileTree]);
+
+  // Update container dimensions
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const updateSize = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setDimensions({ height: rect.height, width: rect.width });
+      }
+    };
+
+    // Initial size
+    updateSize();
+
+    // Watch for resize
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     loadTree();
@@ -154,12 +177,20 @@ export function FileTree() {
   }
 
   return (
-    <Tree<FileNode>
-      data={fileTree}
-      rowHeight={32}
-      height={Infinity}
-      width={Infinity}
-      renderRow={renderRow}
-    />
+    <div ref={containerRef} className="h-full w-full overflow-auto">
+      {fileTree.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+          <p className="text-sm text-muted-foreground">No files found</p>
+        </div>
+      ) : (
+        <Tree<FileNode>
+          data={fileTree}
+          rowHeight={32}
+          height={dimensions.height}
+          width={dimensions.width}
+          renderRow={renderRow}
+        />
+      )}
+    </div>
   );
 }

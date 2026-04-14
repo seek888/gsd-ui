@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
+import { isTauri } from '@tauri-apps/api/core';
 import { AppShell } from '@/components/AppShell';
+import { BrowserPreviewPage } from '@/components/BrowserPreviewPage';
 import { WelcomePage } from '@/components/WelcomePage';
 import { DirectoryPicker } from '@/components/DirectoryPicker';
 import { useProjectStore } from '@/stores/projectStore';
@@ -7,8 +9,11 @@ import './index.css';
 
 function AppContent() {
   const { cliInstalled, projectPath, isLoading, loadSettings, detectCli } = useProjectStore();
+  const runningInTauri = isTauri();
 
   useEffect(() => {
+    if (!runningInTauri) return;
+
     // Initialize: load persisted settings and detect CLI
     let mounted = true;
     const init = async () => {
@@ -17,7 +22,11 @@ function AppContent() {
     };
     init();
     return () => { mounted = false; };
-  }, []);
+  }, [runningInTauri, loadSettings, detectCli]);
+
+  if (!runningInTauri) {
+    return <BrowserPreviewPage />;
+  }
 
   if (isLoading) {
     return (
