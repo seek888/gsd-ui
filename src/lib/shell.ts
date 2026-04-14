@@ -150,8 +150,16 @@ export async function runCommand(
 
   // Wrap event registration in try-catch to handle failures
   try {
-    cmd.stdout.on('data', onStdout);
-    cmd.stderr.on('data', onStderr);
+    cmd.stdout.on('data', (data) => {
+      // Convert IOPayload (string | Uint8Array) to string
+      const str = typeof data === 'string' ? data : new TextDecoder().decode(data);
+      onStdout(str);
+    });
+    cmd.stderr.on('data', (data) => {
+      // Convert IOPayload (string | Uint8Array) to string
+      const str = typeof data === 'string' ? data : new TextDecoder().decode(data);
+      onStderr(str);
+    });
   } catch (err) {
     onStderr(`Failed to attach to command output: ${err}`);
     throw err;
