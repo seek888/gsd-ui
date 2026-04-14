@@ -86,10 +86,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 04-01: Build phase list view with completion status, progress bars, and current phase highlight (PROG-01)
-- [ ] 04-02: Implement phase detail expansion showing Plans and their completion indicators (PROG-02)
-- [ ] 04-03: Display current session context (recent activity, blockers, decisions) sourced from gsd-tools state-snapshot (PROG-03, PROG-05)
-- [ ] 04-04: Build attention panel aggregating incomplete plans, blockers, and outstanding items (PROG-04)
+- [ ] 04-01: Add shadcn/ui components (Badge, Progress, Accordion, Separator) for progress visualization (PROG-01, PROG-02)
+- [ ] 04-02: Create progressStore Zustand store and gsd-tools wrapper for roadmap/state data parsing (PROG-01, PROG-02, PROG-03, PROG-05)
+- [ ] 04-03: Implement PhaseCard and PlanItem components showing phase progress and plan completion status (PROG-01, PROG-02)
+- [ ] 04-04: Implement SessionContext and AttentionPanel components showing current session state and attention items (PROG-03, PROG-04)
 **UI hint**: yes
 
 ### Phase 5: Polish + Distribution
@@ -121,7 +121,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Scaffold + Foundation | 3/3 | Complete | 2026-04-13 |
 | 2. Command Execution + Output Streaming | 6/6 | Complete | 2026-04-13 |
-| 3. File Browsing + Monaco Editor | 2/5 | In Progress|  |
+| 3. File Browsing + Monaco Editor | 5/5 | Complete | 2026-04-14 |
 | 4. Progress & State Views | 0/4 | Not started | - |
 | 5. Polish + Distribution | 0/5 | Not started | - |
 
@@ -129,22 +129,21 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 - v1 requirements: 22 total
 - Mapped to phases: 22/22
 
-**Phase 3 Detail:**
+**Phase 4 Detail:**
 
 | Plan | Requirements | Tasks | Wave | Status |
 |------|--------------|-------|------|--------|
-| 03-01 | FILE-01 | 4 | 1 | Ready |
-| 03-02 | FILE-02 | 4 | 2 | Ready |
-| 03-03 | FILE-03 | 5 | 2 | Ready |
-| 03-04 | FILE-04 | 4 | 3 | Ready |
-| 03-05 | FILE-05 | 5 | 2 | Ready |
+| 04-01 | PROG-01, PROG-02 | 5 | 1 | Ready |
+| 04-02 | PROG-01, PROG-02, PROG-03, PROG-05 | 3 | 2 | Ready |
+| 04-03 | PROG-01, PROG-02 | 3 | 2 | Ready |
+| 04-04 | PROG-03, PROG-04 | 3 | 3 | Ready |
 
 **Wave Structure:**
 
 | Wave | Plans | Parallel Execution |
 |------|-------|-------------------|
-| 1 | 03-01 | Independent (no deps) |
-| 2 | 03-02, 03-03, 03-05 | Parallel after 03-01 |
-| 3 | 03-04 | After 03-03 |
+| 1 | 04-01 | Independent (no deps) |
+| 2 | 04-02, 04-03 | Parallel after 04-01 |
+| 3 | 04-04 | After 04-02, 04-03 |
 
-**Total Tasks:** 22 tasks across 5 plans
+**Total Tasks:** 14 tasks across 4 plans
