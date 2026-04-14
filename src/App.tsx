@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { isTauri } from '@tauri-apps/api/core';
 import { AppShell } from '@/components/AppShell';
 import { BrowserPreviewPage } from '@/components/BrowserPreviewPage';
@@ -7,30 +7,44 @@ import { DirectoryPicker } from '@/components/DirectoryPicker';
 import { ErrorDialog } from '@/components/ui/error-dialog';
 import { ErrorToaster } from '@/components/ui/error-toast';
 import { useProjectStore } from '@/stores/projectStore';
+import { useUIStore } from '@/stores/uiStore';
 import { useErrorStore } from '@/stores/errorStore';
 import './index.css';
 
 function AppContent() {
-  const { cliInstalled, projectPath, isLoading, loadSettings, detectCli } = useProjectStore();
+  const cliInstalled = useProjectStore((s) => s.cliInstalled);
+  const projectPath = useProjectStore((s) => s.projectPath);
+  const isLoading = useProjectStore((s) => s.isLoading);
+  const loadProjectSettings = useProjectStore((s) => s.loadSettings);
+  const detectCli = useProjectStore((s) => s.detectCli);
+  const loadUISettings = useUIStore((s) => s.loadSettings);
 
-  // Subscribe to errorStore for error UI (D-02)
-  const modalErrors = useErrorStore((state) => state.getErrorsByDisplayType('modal'));
-  const clearError = useErrorStore((state) => state.clearError);
+  const errors = useErrorStore((s) => s.errors);
+  const clearError = useErrorStore((s) => s.clearError);
+  const modalErrors = useMemo(
+    () => errors.filter((e) => e.displayType === 'modal'),
+    [errors],
+  );
 
   const runningInTauri = isTauri();
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
-    if (!runningInTauri) return;
-
-    // Initialize: load persisted settings and detect CLI
+    if (!runningInTauri || hasInitialized.current) return;
+    hasInitialized.current = true;
     let mounted = true;
+
     const init = async () => {
-      await loadSettings();
+      await Promise.all([
+        loadProjectSettings(),
+        loadUISettings(),
+      ]);
       if (mounted) await detectCli();
     };
     init();
+
     return () => { mounted = false; };
-  }, [runningInTauri, loadSettings, detectCli]);
+  }, [runningInTauri]);
 
   if (!runningInTauri) {
     return <BrowserPreviewPage />;
