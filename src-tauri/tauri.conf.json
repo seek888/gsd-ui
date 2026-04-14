@@ -34,7 +34,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "category": "Developer Tool",
+    "category": "public.app-category.developer-tools",
     "shortDescription": "A desktop interface for the GSD workflow",
     "longDescription": "GSD UI provides a visual interface for the GSD (Get Shit Done) workflow, allowing developers to manage projects, execute commands, and edit planning documents.",
     "publisher": "gsd-ui"
