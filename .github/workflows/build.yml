@@ -14,7 +14,7 @@ jobs:
   build-web:
     name: Build Web App
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,10 +37,10 @@ jobs:
           name: web-dist
           path: dist/
 
-  build-tauri-ubuntu:
-    name: Build Tauri App (Ubuntu)
+  build-tauri-linux:
+    name: Build Tauri App (Linux)
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -52,7 +52,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v0
+        uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
 
@@ -74,22 +74,22 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: --bundles deb
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: tauri-build-ubuntu
+          name: tauri-build-linux
           path: |
-            src-tauri/target/release/bundle/**
+            src-tauri/target/release/bundle/deb/**
+            src-tauri/target/release/bundle/appimage/**
             !src-tauri/target/release/build/**
             !src-tauri/target/release/deps/**
+          if-no-files-found: warn
 
   build-tauri-windows:
     name: Build Tauri App (Windows)
     runs-on: windows-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -101,7 +101,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v0
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install npm dependencies
         run: npm ci
@@ -110,37 +110,50 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: --bundles msi
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: tauri-build-windows
           path: |
-            src-tauri/target/release/bundle/**
+            src-tauri/target/release/bundle/nsis/**
+            src-tauri/target/release/bundle/msi/**
             !src-tauri/target/release/build/**
             !src-tauri/target/release/deps/**
+          if-no-files-found: warn
 
-  release:
-    name: Create Release
-    needs: [build-tauri-ubuntu, build-tauri-windows]
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    
+  build-tauri-macos:
+    name: Build Tauri App (macOS)
+    runs-on: macos-latest
+
     steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Display structure of downloaded files
-        run: ls -R artifacts
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          files: artifacts/**/*.exe artifacts/**/*.msi artifacts/**/*.deb
-          draft: true
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build Tauri App
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tauri-build-macos
+          path: |
+            src-tauri/target/release/bundle/dmg/**
+            src-tauri/target/release/bundle/macos/**
+            !src-tauri/target/release/build/**
+            !src-tauri/target/release/deps/**
+          if-no-files-found: warn
