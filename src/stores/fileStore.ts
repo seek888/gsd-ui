@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { readTextFile, writeTextFile, readDir } from '@/lib/fs';
+import { readTextFile, writeTextFile, readDir, resolvePath } from '@/lib/fs';
 import { join } from '@tauri-apps/api/path';
 
 export interface FileNode {
@@ -102,7 +102,8 @@ export const useFileStore = create<FileState>((set, get) => ({
   refreshFileTree: async () => {
     const projectPath = (await import('@/stores/projectStore')).useProjectStore.getState().projectPath;
     if (!projectPath) return;
-    const planningPath = await join(projectPath, '.planning');
+    const resolvedProjectPath = await resolvePath(projectPath);
+    const planningPath = await join(resolvedProjectPath, '.planning');
     const tree = await buildFileTree(planningPath);
     set({ fileTree: tree });
   },
@@ -111,7 +112,13 @@ export const useFileStore = create<FileState>((set, get) => ({
 // Module-level helper for refreshFileTree (avoids circular import)
 async function buildFileTree(dirPath: string): Promise<FileNode[]> {
   try {
-    const entries = await readDir(dirPath);
+    console.log('[fileStore] buildFileTree:', dirPath);
+    // Resolve path to ensure it's absolute for Tauri's fs plugin
+    const resolvedPath = await resolvePath(dirPath);
+    console.log('[fileStore] resolved path:', resolvedPath);
+    const entries = await readDir(resolvedPath);
+    console.log('[fileStore] readDir entries:', entries.length);
+
     const sortedEntries = [...entries].sort((a, b) => {
       if (a.isDirectory && !b.isDirectory) return -1;
       if (!a.isDirectory && b.isDirectory) return 1;
@@ -120,7 +127,7 @@ async function buildFileTree(dirPath: string): Promise<FileNode[]> {
 
     const nodes: FileNode[] = [];
     for (const entry of sortedEntries) {
-      const fullPath = await join(dirPath, entry.name);
+      const fullPath = await join(resolvedPath, entry.name);
       const node: FileNode = {
         id: fullPath,
         name: entry.name,
@@ -132,8 +139,10 @@ async function buildFileTree(dirPath: string): Promise<FileNode[]> {
       }
       nodes.push(node);
     }
+    console.log('[fileStore] built', nodes.length, 'nodes');
     return nodes;
-  } catch {
+  } catch (error) {
+    console.error('[fileStore] buildFileTree error:', error);
     return [];
   }
 }

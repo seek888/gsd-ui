@@ -10,14 +10,20 @@ import {
   ChevronDown,
   FolderPlus,
 } from 'lucide-react';
-import { readDir } from '@/lib/fs';
+import { readDir, resolvePath } from '@/lib/fs';
 import { join } from '@tauri-apps/api/path';
 import { useFileStore, type FileNode } from '@/stores/fileStore';
 import { useProjectStore } from '@/stores/projectStore';
 
 async function buildFileTree(dirPath: string): Promise<FileNode[]> {
   try {
-    const entries = await readDir(dirPath);
+    console.log('[FileTree] buildFileTree called with path:', dirPath);
+    // Resolve path to ensure it's absolute for Tauri's fs plugin
+    const resolvedPath = await resolvePath(dirPath);
+    console.log('[FileTree] resolved path:', resolvedPath);
+    const entries = await readDir(resolvedPath);
+    console.log('[FileTree] readDir returned entries:', entries.length, entries);
+
     const sortedEntries = [...entries].sort((a, b) => {
       // Directories first, then alphabetically
       if (a.isDirectory && !b.isDirectory) return -1;
@@ -27,7 +33,7 @@ async function buildFileTree(dirPath: string): Promise<FileNode[]> {
 
     const nodes: FileNode[] = [];
     for (const entry of sortedEntries) {
-      const fullPath = await join(dirPath, entry.name);
+      const fullPath = await join(resolvedPath, entry.name);
       const node: FileNode = {
         id: fullPath,
         name: entry.name,
@@ -40,8 +46,11 @@ async function buildFileTree(dirPath: string): Promise<FileNode[]> {
       }
       nodes.push(node);
     }
+    console.log('[FileTree] built tree with', nodes.length, 'nodes');
     return nodes;
-  } catch {
+  } catch (error) {
+    // Log error for debugging
+    console.error('[FileTree] buildFileTree error:', error);
     // Return empty array if directory cannot be read (e.g., no permission)
     return [];
   }
@@ -54,9 +63,16 @@ export function FileTree() {
   const [dimensions, setDimensions] = useState({ height: 400, width: 200 });
 
   const loadTree = useCallback(async () => {
-    if (!projectPath) return;
-    const planningPath = await join(projectPath, '.planning');
+    if (!projectPath) {
+      console.log('[FileTree] loadTree: no projectPath');
+      return;
+    }
+    // Resolve project path first to ensure it's absolute
+    const resolvedProjectPath = await resolvePath(projectPath);
+    const planningPath = await join(resolvedProjectPath, '.planning');
+    console.log('[FileTree] loadTree: projectPath=', projectPath, 'resolvedProjectPath=', resolvedProjectPath, 'planningPath=', planningPath);
     const tree = await buildFileTree(planningPath);
+    console.log('[FileTree] loadTree: tree=', tree);
     setFileTree(tree);
   }, [projectPath, setFileTree]);
 

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { getSetting, setSetting } from '@/lib/store';
 import { checkClaudeInstalled } from '@/lib/shell';
+import { resolvePath } from '@/lib/fs';
 
 interface ProjectState {
   projectPath: string | null;
@@ -25,7 +26,14 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
   clearError: () => set({ error: null }),
 
-  setProjectPath: (path) => set({ projectPath: path }),
+  setProjectPath: async (path) => {
+    if (path) {
+      const resolvedPath = await resolvePath(path);
+      set({ projectPath: resolvedPath });
+    } else {
+      set({ projectPath: null });
+    }
+  },
 
   setCliInstalled: (installed, version) => set({
     cliInstalled: installed,
@@ -36,7 +44,13 @@ export const useProjectStore = create<ProjectState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const savedPath = await getSetting<string | null>('projectPath', null);
-      set({ projectPath: savedPath });
+      if (savedPath) {
+        // Resolve the path to ensure it's absolute
+        const resolvedPath = await resolvePath(savedPath);
+        set({ projectPath: resolvedPath });
+      } else {
+        set({ projectPath: null });
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       set({ error: `Failed to load settings: ${message}` });
@@ -47,8 +61,10 @@ export const useProjectStore = create<ProjectState>((set) => ({
   saveProjectPath: async (path) => {
     set({ error: null });
     try {
-      await setSetting('projectPath', path);
-      set({ projectPath: path });
+      // Resolve the path to ensure it's absolute before saving
+      const resolvedPath = await resolvePath(path);
+      await setSetting('projectPath', resolvedPath);
+      set({ projectPath: resolvedPath });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       set({ error: `Failed to save project path: ${message}` });
