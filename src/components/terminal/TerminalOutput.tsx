@@ -80,6 +80,18 @@ export function TerminalOutput({ className = "", onSelectionChange, onTerminalRe
     };
   }, [onTerminalReady, handleSelectionChangeCallback]);
 
+  // Auto-resize terminal when window resizes
+  useEffect(() => {
+    if (!fitAddonRef.current) return;
+
+    const handleResize = () => {
+      fitAddonRef.current?.fit();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Scroll to bottom handler
   const scrollToBottom = () => {
     terminalInstanceRef.current?.scrollToBottom();
