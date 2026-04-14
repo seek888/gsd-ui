@@ -8,8 +8,8 @@ A Tauri v2 + React desktop app that wraps the GSD CLI workflow. Users can trigge
 
 - [x] **Phase 1: Scaffold + Foundation** - Tauri v2 project setup, CLI detection, path selection, Zustand stores, capability configuration
 - [x] **Phase 2: Command Execution + Output Streaming** - GSD command buttons, real-time stdout/stderr streaming, ANSI colors, cancel support
-- [ ] **Phase 3: File Browsing + Monaco Editor** - File tree, Markdown preview, Monaco editing, unsaved indicator, file watching
-- [ ] **Phase 4: Progress & State Views** - Phase list with completion, expandable plans, session context, attention panel
+- [x] **Phase 3: File Browsing + Monaco Editor** - File tree, Markdown preview, Monaco editing, unsaved indicator, file watching
+- [x] **Phase 4: Progress & State Views** - Phase list with completion, expandable plans, session context, attention panel
 - [ ] **Phase 5: Polish + Distribution** - Error handling, settings persistence, cross-platform builds, app icon
 
 ## Phase Details
@@ -86,10 +86,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 04-01: Add shadcn/ui components (Badge, Progress, Accordion, Separator) for progress visualization (PROG-01, PROG-02)
-- [ ] 04-02: Create progressStore Zustand store and gsd-tools wrapper for roadmap/state data parsing via CLI with markdown fallback (PROG-01, PROG-02, PROG-03, PROG-05)
+- [x] 04-01: Add shadcn/ui components (Badge, Progress, Accordion, Separator) for progress visualization (PROG-01, PROG-02)
+- [x] 04-02: Create progressStore Zustand store and gsd-tools wrapper for roadmap/state data parsing via CLI with markdown fallback (PROG-01, PROG-02, PROG-03, PROG-05)
 - [x] 04-03: Implement PhaseCard and PlanItem components showing phase progress and plan completion status (PROG-01, PROG-02)
-- [ ] 04-04: Implement SessionContext and AttentionPanel components showing current session state and attention items (PROG-03, PROG-04)
+- [x] 04-04: Implement SessionContext and AttentionPanel components showing current session state and attention items (PROG-03, PROG-04)
 **UI hint**: yes
 
 ### Phase 5: Polish + Distribution
@@ -105,12 +105,33 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 05-01: Implement comprehensive error handling for all CLI, file system, and process failure modes
-- [ ] 05-02: Persist user preferences (project path, UI state) via @tauri-apps/plugin-store
-- [ ] 05-03: Build and test macOS .app bundle
-- [ ] 05-04: Build and test Windows .exe (acquire code signing certificate, configure CI signing, test Windows path handling)
-- [ ] 05-05: Configure app icon and metadata (app name, version, description in tauri.conf.json)
+- [ ] 05-01-PLAN.md — 实现分级错误处理系统（重试逻辑、日志记录、Modal/Toast UI 组件）
+- [ ] 05-02-PLAN.md — 扩展设置持久化（侧边栏状态、当前视图自动恢复）
+- [ ] 05-03-PLAN.md — 构建和测试 macOS .app bundle
+- [ ] 05-04-PLAN.md — 构建和测试 Windows .exe 安装程序
+- [ ] 05-05-PLAN.md — 配置应用图标和元数据
 **UI hint**: yes
+
+**Phase 5 Detail:**
+
+| Plan | Tasks | Wave | Status |
+|------|-------|------|--------|
+| 05-01 | 4 | 1 | Ready |
+| 05-02 | 3 | 2 | Ready |
+| 05-03 | 3 | 3 | Ready |
+| 05-04 | 3 | 3 | Ready |
+| 05-05 | 3 | 4 | Ready |
+
+**Wave Structure:**
+
+| Wave | Plans | Parallel Execution |
+|------|-------|-------------------|
+| 1 | 05-01 | Independent (error handling foundation) |
+| 2 | 05-02 | After 05-01 (depends on error store) |
+| 3 | 05-03, 05-04 | Parallel (independent platform builds) |
+| 4 | 05-05 | After 05-03, 05-04 (final polish) |
+
+**Total Tasks:** 16 tasks across 5 plans
 
 ## Progress
 
@@ -122,28 +143,9 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Scaffold + Foundation | 3/3 | Complete | 2026-04-13 |
 | 2. Command Execution + Output Streaming | 6/6 | Complete | 2026-04-13 |
 | 3. File Browsing + Monaco Editor | 5/5 | Complete | 2026-04-14 |
-| 4. Progress & State Views | 0/4 | Not started | - |
-| 5. Polish + Distribution | 0/5 | Not started | - |
+| 4. Progress & State Views | 4/4 | Complete | 2026-04-14 |
+| 5. Polish + Distribution | 0/5 | Planning complete | - |
 
 **Coverage:**
 - v1 requirements: 22 total
 - Mapped to phases: 22/22
-
-**Phase 4 Detail:**
-
-| Plan | Requirements | Tasks | Wave | Status |
-|------|--------------|-------|------|--------|
-| 04-01 | PROG-01, PROG-02 | 5 | 1 | Ready |
-| 04-02 | PROG-01, PROG-02, PROG-03, PROG-05 | 3 | 2 | Ready |
-| 04-03 | PROG-01, PROG-02 | 3 | 3 | Ready |
-| 04-04 | PROG-03, PROG-04 | 3 | 3 | Ready |
-
-**Wave Structure:**
-
-| Wave | Plans | Parallel Execution |
-|------|-------|-------------------|
-| 1 | 04-01 | Independent (no deps) |
-| 2 | 04-02 | After 04-01 |
-| 3 | 04-03, 04-04 | Parallel after 04-02 |
-
-**Total Tasks:** 14 tasks across 4 plans
