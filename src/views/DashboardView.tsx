@@ -3,6 +3,8 @@ import { FolderOpen, RefreshCw, AlertCircle } from 'lucide-react';
 import { useProgressStore } from '@/stores/progressStore';
 import { useProjectStore } from '@/stores/projectStore';
 import { PhaseCard } from '@/components/progress/PhaseCard';
+import { SessionContext } from '@/components/progress/SessionContext';
+import { AttentionPanel } from '@/components/progress/AttentionPanel';
 import { DirectoryPicker } from '@/components/DirectoryPicker';
 import { cn } from '@/lib/utils';
 
@@ -10,6 +12,7 @@ export function DashboardView() {
   const { projectPath } = useProjectStore();
   const {
     roadmapData,
+    sessionState,
     loadingState,
     error,
     expandedPhases,
@@ -79,7 +82,7 @@ export function DashboardView() {
     );
   }
 
-  // 主内容：阶段列表
+  // 主内容：阶段列表 + 会话上下文 + 注意事项
   return (
     <div className="h-full flex flex-col">
       {/* 头部：标题 + 刷新按钮 */}
@@ -101,17 +104,29 @@ export function DashboardView() {
         </button>
       </div>
 
-      {/* 阶段卡片列表 */}
+      {/* 阶段列表 + 会话上下文 + 注意事项 */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-4xl mx-auto space-y-4">
-          {roadmapData.phases.map((phase) => (
-            <PhaseCard
-              key={phase.number}
-              phase={phase}
-              isExpanded={expandedPhases.has(phase.number)}
-              onToggle={() => togglePhaseExpansion(phase.number)}
-            />
-          ))}
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* 注意事项面板（如果有） */}
+          <AttentionPanel
+            roadmapData={roadmapData}
+            sessionState={sessionState}
+          />
+
+          {/* 阶段卡片列表 */}
+          <div className="space-y-4">
+            {roadmapData.phases.map((phase) => (
+              <PhaseCard
+                key={phase.number}
+                phase={phase}
+                isExpanded={expandedPhases.has(phase.number)}
+                onToggle={() => togglePhaseExpansion(phase.number)}
+              />
+            ))}
+          </div>
+
+          {/* 会话上下文 */}
+          <SessionContext sessionState={sessionState} />
         </div>
       </div>
     </div>
