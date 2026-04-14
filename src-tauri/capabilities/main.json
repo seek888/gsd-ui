@@ -48,6 +48,15 @@
     "fs:allow-copy-file",
     "fs:allow-remove",
     "fs:allow-rename",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        { "path": "$HOME/**" },
+        { "path": "$APPDATA/**" },
+        { "path": "$APPCONFIG/**" },
+        { "path": "$APPLOCALDATA/**" }
+      ]
+    },
     "store:default",
     "dialog:allow-open",
     "dialog:allow-message"
