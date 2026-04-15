@@ -63,7 +63,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: electron-build-win
-          path: release/win-*.exe
+          path: |
+            release/*.exe
+            release/win-unpacked/**
           if-no-files-found: warn
 
   build-electron-macos:
