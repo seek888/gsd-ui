@@ -52,9 +52,7 @@ jobs:
         run: npm ci
 
       - name: Build Electron App
-        run: npm run electron:build:win
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run electron:build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -81,7 +79,7 @@ jobs:
         run: npm ci
 
       - name: Build Electron App
-        run: npm run electron:build:mac
+        run: npm run electron:build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -91,31 +89,4 @@ jobs:
             release/mac-*/
             release/*.dmg
             release/*.zip
-          if-no-files-found: warn
-
-  build-electron-linux:
-    name: Build Electron App (Linux)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install npm dependencies
-        run: npm ci
-
-      - name: Build Electron App
-        run: npm run electron:build:linux
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: electron-build-linux
-          path: release/linux-*/
           if-no-files-found: warn
