@@ -53,6 +53,11 @@ jobs:
 
       - name: Build Electron App
         run: npm run electron:build
+        env:
+          CI: 'true'
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+          ELECTRON_BUILDER_PUBLISH: 'never'
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -80,6 +85,11 @@ jobs:
 
       - name: Build Electron App
         run: npm run electron:build
+        env:
+          CI: 'true'
+          ELECTRON_AUTH: ''
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+          ELECTRON_BUILDER_PUBLISH: 'never'
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

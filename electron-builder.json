@@ -16,15 +16,19 @@
   "extraMetadata": {
     "main": "dist-electron/main.js"
   },
+  "publish": null,
   "mac": {
     "target": ["dmg", "zip"],
     "category": "public.app-category.developer-tools",
-    "artifactName": "${productName}-${version}-${arch}.${ext}"
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "hardenedRuntime": false,
+    "gatekeeperAssess": false
   },
   "win": {
     "target": ["nsis"],
     "icon": "build/icon.ico",
-    "artifactName": "${productName}-Setup-${version}.${ext}"
+    "artifactName": "${productName}-Setup-${version}.${ext}",
+    "signAndEditExecutable": false
   },
   "linux": {
     "target": ["AppImage"],
