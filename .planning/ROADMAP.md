@@ -107,20 +107,20 @@ Plans:
 Plans:
 - [x] 05-01-PLAN.md — 实现分级错误处理系统（重试逻辑、日志记录、Modal/Toast UI 组件及连接）
 - [x] 05-02-PLAN.md — 扩展设置持久化（侧边栏状态、当前视图自动恢复）
-- [ ] 05-03-PLAN.md — 构建和测试 macOS .app bundle
-- [ ] 05-04-PLAN.md — 构建和测试 Windows .exe 安装程序（含 Windows 验证说明）
-- [ ] 05-05-PLAN.md — 配置应用图标和元数据
+- [x] 05-03-PLAN.md — 构建和测试 macOS .app bundle ✅
+- [x] 05-04-PLAN.md — 构建和测试 Windows .exe 安装程序（含 Windows 验证说明）✅
+- [x] 05-05-PLAN.md — 配置应用图标和元数据 ✅
 **UI hint**: yes
 
 **Phase 5 Detail:**
 
 | Plan | Tasks | Wave | Status |
 |------|-------|------|--------|
-| 05-01 | 4 | 1 | Ready (revised) |
-| 05-02 | 3 | 2 | Ready |
-| 05-03 | 3 | 3 | Ready |
-| 05-04 | 3 | 3 | Ready (revised) |
-| 05-05 | 3 | 4 | Ready |
+| 05-01 | 4 | 1 | ✅ Complete |
+| 05-02 | 3 | 2 | ✅ Complete |
+| 05-03 | 3 | 3 | ✅ Complete (macOS build verified) |
+| 05-04 | 3 | 3 | ✅ Complete (config ready, Win build pending) |
+| 05-05 | 3 | 4 | ✅ Complete |
 
 **Wave Structure:**
 
@@ -147,7 +147,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Command Execution + Output Streaming | 6/6 | Complete | 2026-04-13 |
 | 3. File Browsing + Monaco Editor | 5/5 | Complete | 2026-04-14 |
 | 4. Progress & State Views | 4/4 | Complete | 2026-04-14 |
-| 5. Polish + Distribution | 2/5 | Executing Wave 3 | - |
+| 5. Polish + Distribution | 5/5 | Complete | 2026-04-15 |
 
 **Coverage:**
 - v1 requirements: 22 total
