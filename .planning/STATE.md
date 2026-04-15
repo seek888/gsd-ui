@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 06 executing
-last_updated: "2026-04-15T04:10:00.000Z"
-last_activity: 2026-04-15 — Phase 06-02/03/04 IPC和Store迁移完成
+status: completed
+stopped_at: Phase 06 complete
+last_updated: "2026-04-15T04:15:00.000Z"
+last_activity: 2026-04-15 — Phase 06 Electron 迁移完成，macOS 构建成功
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 28
-  completed_plans: 27
-  percent: 96
+  completed_plans: 28
+  percent: 100
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-13)
 
 ## Current Position
 
-Phase: 06 (Electron 迁移) — EXECUTING
-Plan: 1 of 5
-Status: Executing Phase 06-01
-Last activity: 2026-04-15 — Phase 06-01 Electron 脚手架验证完成
+Phase: 06 (Electron 迁移) — COMPLETED
+Plan: All 5 of 5
+Status: All phases complete
+Last activity: 2026-04-15 — Phase 06 Electron 迁移完成
 Last activity: 2026-04-15
 
 Progress: [██████████] 100% (all phases complete)

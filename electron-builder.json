@@ -2,26 +2,39 @@
   "appId": "com.gsd.ui",
   "productName": "GSD UI",
   "directories": {
-    "output": "release"
+    "output": "release",
+    "buildResources": "build"
   },
   "files": [
     "dist/**/*",
-    "dist-electron/**/*"
+    "dist-electron/**/*",
+    "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+    "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+    "!**/node_modules/*.d.ts",
+    "!**/node_modules/.bin"
   ],
+  "extraMetadata": {
+    "main": "dist-electron/main.js"
+  },
   "mac": {
     "target": ["dmg", "zip"],
-    "category": "public.app-category.developer-tools"
+    "category": "public.app-category.developer-tools",
+    "artifactName": "${productName}-${version}-${arch}.${ext}"
   },
   "win": {
     "target": ["nsis"],
-    "icon": "public/icon.ico"
+    "icon": "build/icon.ico",
+    "artifactName": "${productName}-Setup-${version}.${ext}"
   },
   "linux": {
     "target": ["AppImage"],
-    "category": "Development"
+    "category": "Development",
+    "artifactName": "${productName}-${version}-${arch}.${ext}"
   },
   "nsis": {
     "oneClick": false,
-    "allowToChangeInstallationDirectory": true
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true
   }
 }
