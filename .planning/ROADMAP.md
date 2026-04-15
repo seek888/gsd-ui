@@ -148,7 +148,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. File Browsing + Monaco Editor | 5/5 | Complete | 2026-04-14 |
 | 4. Progress & State Views | 4/4 | Complete | 2026-04-14 |
 | 5. Polish + Distribution | 5/5 | Complete | 2026-04-15 |
-| 6. Electron 迁移 | 0/5 | Pending | - |
+| 6. Electron 迁移 | 1/5 | Executing | - |
 
 **Coverage:**
 - v1 requirements: 22 total
@@ -164,7 +164,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 **Plans**: 5 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Electron 项目脚手架搭建
+- [x] 06-01-PLAN.md — Electron 项目脚手架搭建 ✅
 - [ ] 06-02-PLAN.md — Main Process 和 Preload 实现
 - [ ] 06-03-PLAN.md — Stores 迁移 (electron-store)
 - [ ] 06-04-PLAN.md — Shell 和文件系统迁移
