@@ -11,7 +11,7 @@ import {
   FolderPlus,
 } from 'lucide-react';
 import { readDir, resolvePath } from '@/lib/fs';
-import { join } from '@tauri-apps/api/path';
+import { join } from 'path';
 import { useFileStore, type FileNode } from '@/stores/fileStore';
 import { useProjectStore } from '@/stores/projectStore';
 

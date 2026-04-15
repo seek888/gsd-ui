@@ -3,7 +3,7 @@
  * Provides structured data access for roadmap and state information
  */
 
-import { readTextFile } from '@tauri-apps/plugin-fs';
+import { readTextFile } from '@/lib/fs';
 import { runCommand } from '@/lib/shell';
 import type {
   Phase, Plan, SessionState, RoadmapData,

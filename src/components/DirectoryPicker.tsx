@@ -1,8 +1,7 @@
 import { FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { open } from '@tauri-apps/plugin-dialog';
-import { readDir } from '@tauri-apps/plugin-fs';
+import { electronAPI } from '@/lib/electronAPI';
 import { useProjectStore } from '@/stores/projectStore';
 import { WelcomeLayout } from './WelcomeLayout';
 
@@ -11,19 +10,14 @@ export function DirectoryPicker() {
 
   const handleSelectDirectory = async () => {
     try {
-      const selected = await open({
-        directory: true,
-        multiple: false,
-        title: 'Select GSD Project Directory',
-      });
-      if (selected && typeof selected === 'string') {
-        // Verify it's a valid directory with .planning folder
+      const selected = await electronAPI.openDirectory();
+      if (selected) {
+        // Verify it's a valid directory
         try {
-          const entries = await readDir(selected);
-          const hasPlanningDir = entries.some(e => e.name === '.planning');
+          const entries = await electronAPI.readDir(selected);
+          const hasPlanningDir = entries.some((e: any) => e.name === '.planning');
 
           if (!hasPlanningDir) {
-            // Still allow selection, but user should be aware
             console.warn('Selected directory does not contain .planning folder');
           }
 
@@ -69,7 +63,6 @@ export function DirectoryPicker() {
         </CardContent>
       </Card>
 
-      {/* Status footer */}
       <div className="mt-6 flex items-center justify-center gap-4 text-xs text-muted-foreground">
         <span className="flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-green-500" />

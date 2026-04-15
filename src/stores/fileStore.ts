@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { readTextFile, writeTextFile, readDir, resolvePath } from '@/lib/fs';
-import { join } from '@tauri-apps/api/path';
+import { join } from 'path';
 
 export interface FileNode {
   id: string;

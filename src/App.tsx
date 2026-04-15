@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { isTauri } from '@tauri-apps/api/core';
 import { AppShell } from '@/components/AppShell';
 import { BrowserPreviewPage } from '@/components/BrowserPreviewPage';
 import { WelcomePage } from '@/components/WelcomePage';
@@ -9,6 +8,7 @@ import { ErrorToaster } from '@/components/ui/error-toast';
 import { useProjectStore } from '@/stores/projectStore';
 import { useUIStore } from '@/stores/uiStore';
 import { useErrorStore } from '@/stores/errorStore';
+import { electronAPI } from '@/lib/electronAPI';
 import './index.css';
 
 function AppContent() {
@@ -26,11 +26,10 @@ function AppContent() {
     [errors],
   );
 
-  const runningInTauri = isTauri();
   const hasInitialized = useRef(false);
 
   useEffect(() => {
-    if (!runningInTauri || hasInitialized.current) return;
+    if (hasInitialized.current) return;
     hasInitialized.current = true;
     let mounted = true;
 
@@ -44,11 +43,7 @@ function AppContent() {
     init();
 
     return () => { mounted = false; };
-  }, [runningInTauri]);
-
-  if (!runningInTauri) {
-    return <BrowserPreviewPage />;
-  }
+  }, []);
 
   if (isLoading) {
     return (
@@ -58,7 +53,7 @@ function AppContent() {
     );
   }
 
-  // Decision tree per D-05 and D-06:
+  // Decision tree:
   // 1. CLI not installed -> show WelcomePage with install guide
   if (!cliInstalled) {
     return <WelcomePage />;
@@ -73,7 +68,6 @@ function AppContent() {
   return (
     <>
       <AppShell />
-      {/* Error UI components connected to errorStore (D-02) */}
       <ErrorToaster />
       {modalErrors.map((error) => (
         <ErrorDialog key={error.id} error={error} onClose={() => clearError(error.id)} />
